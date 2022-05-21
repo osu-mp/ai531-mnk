@@ -5,7 +5,6 @@ MCTS search to terminal nodes
 
 Notes 5/18/22
 TODO
--board: Joe
 -minimax/alpha beta: Wadood 
 -mcts: Matthew & Joe
 --mcts policy: Matthew & Joe
@@ -14,6 +13,9 @@ TODO
 -mcts vs mcts, human vs. minimax, human vs mcts, mcts vs mini, mini vs mcts
 -bound search by some criteria: time or nodes? 
 -implement mcts and minimax, then play against human: state who goes first [we can count number of seconds each algo takes to pick a move] (record cumulative time of each bot over each game)
+
+DONE?
+-board
 
 clarify: what bounds are we setting
   k <= m || k <= n
