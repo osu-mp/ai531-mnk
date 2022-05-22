@@ -41,11 +41,11 @@ def mcts(board: Board, player1, policy=None):
         if exp_board.is_gameover(square, player1):
             # exp_board.show()
             if exp_board.is_tie():
-                playouts[square] = Playout(games=1, wins=0)
+                playouts[square] = Playout(games=max_trials, wins=0)
             elif exp_board.is_loss(player1):
-                playouts[square] = Playout(games=1, wins=0)
+                playouts[square] = Playout(games=max_trials, wins=0)
             else:
-                playouts[square] = Playout(games=1, wins=1)
+                playouts[square] = Playout(games=max_trials, wins=max_trials)
             continue
 
         # simulation
@@ -157,6 +157,8 @@ class Playout:
     def get_win_ratio(self):
         return self.wins / self.games
 
+    def __str__(self):
+        return f'{self.wins} / {self.games} ({self.get_win_ratio() * 100}%)'
 class TestMCTS(unittest.TestCase):
     def setUp(self) -> None:
         self.board = Board((3, 3), 3)
@@ -190,14 +192,17 @@ class TestMCTS(unittest.TestCase):
         player = 1
         while len(self.board.get_empty_squares()) > 0:
             best_move = mcts(self.board, player)
-            if self.board.is_win(best_move, player):
-                break;
             self.board.make_move(best_move, player)
+            if self.board.is_win(best_move, player):
+                print(f'Player {player} wins!')
+                self.board.show()
+                break;
             print(f'Best move for player {player} is: {best_move}')
             self.board.show()
             player = get_other_player(player)
 
         print(f'Winning player: {self.board.winner}')
+
 
 if __name__ == '__main__':
     if __name__ == '__main__':
