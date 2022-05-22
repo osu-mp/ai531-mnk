@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Tuple, Literal
 from termcolor import colored
 import numpy as np
@@ -5,12 +6,15 @@ import numpy as np
 import unittest
 
 class Board:
-    def __init__(self, size: Tuple[int, int], k: int):
+    def __init__(self, size: Tuple[int, int], k: int, board=None):
         self.k = k
         self.size = size
-        self.board = np.zeros(self.size, dtype=int)
         self.gameover = False
         self.winner = 0
+        if board is not None:
+            self.board = deepcopy(board)
+        else:
+            self.board = np.zeros(self.size, dtype=int)
 
     def get_diagonal(self, coord: Tuple[int, int], vec: Tuple[int, int]):
         res = []
@@ -71,6 +75,18 @@ class Board:
         # if this is the final move of the game, check for winner
         if len(self.get_empty_squares()) == 0:
             self.is_win(pos, val)
+
+    def did_player_win(self, player):
+        """
+        Once the board has been filled, return True only if the given player won
+        :param player:
+        :return:
+        """
+        # this should not be called until the game is over
+        if not self.gameover:
+            raise Exception('Game not over')
+        # return True if given player won, else false
+        return self.winner == player
 
     def is_win(self, pos: int, val: Literal[0, 1, 2]):
         assert val in [0, 1, 2]
