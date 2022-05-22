@@ -34,11 +34,16 @@ class Board:
         return self.gameover
 
     def get_empty_squares(self):
+        """
+        Return indices of all empty squares
+        :return:
+        """
         empty_squares = []
         for i in range(self.size[0]):
             for j in range(self.size[1]):
                 if self.board[i][j] == 0:
-                    empty_squares += [i * self.size + j]
+                    # size is a tuple m,n so use the m-index to get a unique id for each square
+                    empty_squares += [i * self.size[0] + j]
         return empty_squares
 
     def is_within_board_pos(self, pos: int):
