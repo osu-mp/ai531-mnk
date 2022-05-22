@@ -13,7 +13,7 @@ from copy import deepcopy
 from board import Board
 
 branch_factor = 10
-max_trials = 10
+max_trials = 1000
 
 # def mcts_get_best_move(board: Board, player1, player2):
 
@@ -33,7 +33,7 @@ def mcts(board: Board, player1, policy=None):
     # expansion
     playouts = {}
     for square in selected_squares:
-        print(f'Expansion on square {square}')
+        # print(f'Expansion on square {square}')
 
         exp_board = Board(size=board.size, k=board.k, board=board.board)
         exp_board.make_move(square, player1)
@@ -190,6 +190,8 @@ class TestMCTS(unittest.TestCase):
         player = 1
         while len(self.board.get_empty_squares()) > 0:
             best_move = mcts(self.board, player)
+            if self.board.is_win(best_move, player):
+                break;
             self.board.make_move(best_move, player)
             print(f'Best move for player {player} is: {best_move}')
             self.board.show()
