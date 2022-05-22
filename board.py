@@ -7,7 +7,7 @@ class Board:
     def __init__(self, size: Tuple[int, int], k: int):
         self.k = k
         self.size = size
-        self.board = np.zeros(self.size, dtype=np.int)
+        self.board = np.zeros(self.size, dtype=int)
         self.gameover = False
         self.winner = 0
 
