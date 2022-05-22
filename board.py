@@ -244,6 +244,28 @@ class TestBoard(unittest.TestCase):
         self.assertFalse(board.is_loss(1), 'Player 1 won (not a loss)')
         self.assertTrue(board.is_loss(2), 'Player 2 lost')
 
+    def test_is_win(self):
+        # player 1 (X) gets all top row (0, 1, 2)
+        board = Board((3, 3), 3)
+        board.make_move(0, 1)
+        board.make_move(4, 2)
+        board.make_move(1, 1)
+        board.make_move(5, 2)
+        board.make_move(2, 1)
+        self.assertTrue(board.is_win(2, 1), 'Player1 wins with top row')
+
+        # player 1 (X) gets middle row in 3x4 board (4, 5, 6)
+        # NOTE: this should be a win, but the board looks wrong
+        # TODO
+        board = Board((3, 4), 3)
+        board.make_move(3, 1)
+        board.make_move(2, 2)
+        board.make_move(4, 1)
+        board.make_move(8, 2)
+        board.make_move(5, 1)
+        board.show()
+        self.assertTrue(board.is_win(5, 1), 'Player1 wins with middle row')
+        # board.make_move(5, 1)
 
 if __name__ == '__main__':
     test()
