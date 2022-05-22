@@ -2,6 +2,7 @@ from typing import Tuple, Literal
 from termcolor import colored
 import numpy as np
 
+import unittest
 
 class Board:
     def __init__(self, size: Tuple[int, int], k: int):
@@ -67,6 +68,10 @@ class Board:
         x, y = pos // self.size[0], pos % self.size[0]
         self.board[x][y] = val
 
+        # if this is the final move of the game, check for winner
+        if len(self.get_empty_squares()) == 0:
+            self.is_win(pos, val)
+
     def is_win(self, pos: int, val: Literal[0, 1, 2]):
         assert val in [0, 1, 2]
         flag = False
@@ -117,6 +122,32 @@ class Board:
             self.winner = val
         return flag
 
+    def is_tie(self):
+        """
+        Return True if the board is full and there is no winner
+        :return:
+        """
+
+        if len(self.get_empty_squares()) > 0:
+            return False
+        # return True if the winner is neither player 1 or 2
+        return self.winner == 0
+
+    def is_loss(self, player):
+        """
+        Return True if the given player lost the game
+        Else False (either game is still ongoing or a tie)
+        :param player:
+        :return:
+        """
+        if len(self.get_empty_squares()) > 0:
+            return False
+        # a tie is not a loss
+        if self.is_tie():
+            return False
+        # if the board is full, it's not a tie and the other player won, that is a loss
+        return self.winner != player
+
     def show(self):
         s = ''
         colors = ['white', 'red', 'blue']
@@ -144,6 +175,58 @@ def test():
     print(f'{board.is_win(12, 1)=}')
     board.show()
     # print(board)
+
+class TestBoard(unittest.TestCase):
+    def test_is_tie_true(self):
+        """
+        Unit test for tie checker (tie case)
+        Also covers is_loss
+        :return:
+        """
+        # start with 3x3 board, need 3 consecutive to win
+        board = Board((3, 3), 3)
+        board.make_move(0, 1)
+        board.make_move(1, 2)
+        board.make_move(2, 1)
+        board.make_move(3, 2)
+        board.make_move(4, 1)
+        board.make_move(5, 2)
+        board.make_move(7, 1)
+        board.make_move(8, 2)
+        board.is_win(6, 1)
+        self.assertFalse(board.is_tie(), 'Game not over yet, should not be a tie')
+        board.make_move(6, 2)
+        # board.is_win(6, 2)
+        board.show()
+        print(f'Winner is player {board.winner}')
+        self.assertTrue(board.is_tie(), 'Neither player won, this should be a tie')
+        self.assertFalse(board.is_loss(1), 'Neither player lost')
+        self.assertFalse(board.is_loss(2), 'Neither player lost')
+
+    def test_is_tie_false(self):
+        """
+        Unit test for tie checker (NOT a tie case)
+        Also covers is_loss
+        Player 1 wins
+        :return:
+        """
+        # start with 3x3 board, need 3 consecutive to win
+        board = Board((3, 3), 3)
+        board.make_move(0, 1)
+        board.make_move(1, 2)
+        board.make_move(2, 1)
+        board.make_move(3, 2)
+        board.make_move(4, 1)
+        board.make_move(5, 2)
+        board.make_move(7, 1)
+        board.make_move(8, 2)
+        board.is_win(6, 1)
+        board.make_move(6, 1)
+        board.show()
+        print(f'Winner is player {board.winner}')
+        self.assertFalse(board.is_tie(), 'Player 1 won, is not a tie')
+        self.assertFalse(board.is_loss(1), 'Player 1 won (not a loss)')
+        self.assertTrue(board.is_loss(2), 'Player 2 lost')
 
 
 if __name__ == '__main__':
