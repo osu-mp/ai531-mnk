@@ -160,10 +160,25 @@ class Board:
         # if the board is full, it's not a tie and the other player won, that is a loss
         return self.winner != player
 
-    def show(self):
+    def show(self, show_ids=False ):
         s = ''
         colors = ['white', 'red', 'blue']
+
+        # print column ids
+        if show_ids:
+            header = colored(str('{0:^3}'.format(str(0))), 'yellow')
+            for i in range(self.size[1]):
+                header += colored(str('{0:^3}'.format(str(i))), 'yellow')
+            header += '\n'
+            s += header
+
         for i in range(self.size[0]):
+
+            # print row id
+            # if i > 0:
+            if show_ids:
+                s += colored(str('{0:^3}'.format(str(i))), 'yellow')
+
             for j in range(self.size[1]):
                 square = self.board[i][j]
                 cell_id = i * self.size[1] + j
@@ -302,16 +317,17 @@ class TestBoard(unittest.TestCase):
     # board = Board((5, 4), 3)
 
     def test_make_move(self):
+        # test rectangular board
         board = Board((5, 4), 3)
-        # board.show()
         board.make_move(9, 2)
         board.make_move(14, 2)
         board.make_move(19, 2)
-        # print(f'{board.get_diagonal((4, 3), (-1, -1))=}')
-        # print(f'{board.get_diagonal_topright(4,3)=}')
         board.show()
         self.assertTrue(board.is_win(19, 2), True)
 
+        # test square
+        board = Board((3, 3), 2)
+        board.show()
         # board.make_move(0, 1)
         # board.make_move(6, 1)
         # board.make_move(12, 1)
