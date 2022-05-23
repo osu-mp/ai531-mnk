@@ -177,6 +177,32 @@ class Board:
         print(s)
 
 
+    def get_cells_with_n_neighbors(self, n: int):
+        """
+        Return a list of all cells that have at least n neighbors (X or 0 touching it, including diagonals)
+        Cells with 0 do not count
+        :param x:
+        :return:
+        """
+
+        raise Exception('not implmented')
+
+    def get_common_cells_for_player(self, player):
+        """
+        Find the cells neighboring at least 2 of the given player's cells
+        For the example below, if the player is 1 (X), this function would return cells ordered by count:
+         6, 0, 15  (6 has the higher utility (2) than 0 and 15 (1))
+        For player 2 (O) it should return 6, 4, 8, 12, 13, 14
+        -  1  2  3
+        4  5  O  X
+        8  X  O  O
+        12 13 14 X
+        Intersection of values are more valuable
+        :param player:
+        :return:
+        """
+        raise Exception('Do not use until the get_cells heuristic above is completed')
+
 def test():
     board = Board((5, 4), 3)
     board.make_move(15, 2)
@@ -270,6 +296,22 @@ class TestBoard(unittest.TestCase):
         self.assertTrue(board.is_win(7, 1), 'Player1 wins with middle row')
         self.assertFalse(board.is_win(7, 2), 'Player2 loses with middle row')
         # board.make_move(5, 1)
+
+    def test_get_cells_with_n_neighbors(self):
+        """
+        Unit test for get_cells_with_n_neighbors
+        :return:
+        """
+        '''
+        Using this board
+        0  1  2  3
+        4  X  6  7
+        8  O  X  11
+        12 13 14 15
+        
+        n of 1 should return cells: 0, 1, 2, 4, 6, 7, 8, 11, 13, 14, 15
+        n of 2 should return cells: 4, 6, 8, 13, 14
+        '''
 
 if __name__ == '__main__':
     test()
