@@ -5,7 +5,6 @@ MCTS search to terminal nodes
 
 Notes 5/18/22
 TODO
--board: Joe
 -minimax/alpha beta: Wadood 
 -data collection: Matthew
 -two agents or 1 vs. human?
@@ -17,6 +16,8 @@ WIP:
 -mcts: Matthew & Joe
 --mcts policy: Matthew & Joe
 
+DONE?
+-board
 
 clarify: what bounds are we setting
   k <= m || k <= n
