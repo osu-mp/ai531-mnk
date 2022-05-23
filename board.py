@@ -194,9 +194,9 @@ class Board:
          6, 0, 15  (6 has the higher utility (2) than 0 and 15 (1))
         For player 2 (O) it should return 6, 4, 8, 12, 13, 14
         -  1  2  3
-        4  5  O  X
-        8  X  O  O
-        12 13 14 X
+        4  X  6  7
+        8  X  O  8
+        12 13 14 15
         Intersection of values are more valuable
         :param player:
         :return:
@@ -284,16 +284,15 @@ class TestBoard(unittest.TestCase):
         # player 1 (X) gets middle row in 3x4 board (4, 5, 6)
         # NOTE: this should be a win, but the board looks wrong
         # TODO
-        board = Board((4, 4), 4)
-        board.make_move(4, 1)
+        board = Board((3, 4), 3)
+        board.make_move(3, 1)
         board.show()
         board.make_move(2, 2)
-        board.make_move(5, 1)
+        board.make_move(4, 1)
         board.make_move(8, 2)
-        board.make_move(6, 1)
-        board.make_move(7, 1)
+        board.make_move(5, 1)
         board.show()
-        self.assertTrue(board.is_win(7, 1), 'Player1 wins with middle row')
+        self.assertTrue(board.is_win(5, 1), 'Player1 wins with middle row')
         self.assertFalse(board.is_win(7, 2), 'Player2 loses with middle row')
         # board.make_move(5, 1)
 
