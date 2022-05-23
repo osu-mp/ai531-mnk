@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Tuple, Literal
 from termcolor import colored
 import numpy as np
@@ -5,12 +6,15 @@ import numpy as np
 import unittest
 
 class Board:
-    def __init__(self, size: Tuple[int, int], k: int):
+    def __init__(self, size: Tuple[int, int], k: int, board=None):
         self.k = k
         self.size = size
-        self.board = np.zeros(self.size, dtype=int)
         self.gameover = False
         self.winner = 0
+        if board is not None:
+            self.board = deepcopy(board)
+        else:
+            self.board = np.zeros(self.size, dtype=int)
 
     def get_diagonal(self, coord: Tuple[int, int], vec: Tuple[int, int]):
         res = []
@@ -71,6 +75,18 @@ class Board:
         # if this is the final move of the game, check for winner
         if len(self.get_empty_squares()) == 0:
             self.is_win(pos, val)
+
+    def did_player_win(self, player):
+        """
+        Once the board has been filled, return True only if the given player won
+        :param player:
+        :return:
+        """
+        # this should not be called until the game is over
+        if not self.gameover:
+            raise Exception('Game not over')
+        # return True if given player won, else false
+        return self.winner == player
 
     def is_win(self, pos: int, val: Literal[0, 1, 2]):
         assert val in [0, 1, 2]
@@ -228,6 +244,33 @@ class TestBoard(unittest.TestCase):
         self.assertFalse(board.is_loss(1), 'Player 1 won (not a loss)')
         self.assertTrue(board.is_loss(2), 'Player 2 lost')
 
+    def test_is_win(self):
+        # player 1 (X) gets all top row (0, 1, 2)
+        board = Board((3, 3), 3)
+        board.make_move(0, 1)
+        board.make_move(4, 2)
+        board.make_move(1, 1)
+        board.make_move(5, 2)
+        board.make_move(2, 1)
+        self.assertTrue(board.is_win(2, 1), 'Player1 wins with top row')
+
+    def test_3_4_board(self):
+        # player 1 (X) gets middle row in 3x4 board (4, 5, 6)
+        # NOTE: this should be a win, but the board looks wrong
+        # TODO
+        board = Board((4, 4), 4)
+        board.make_move(4, 1)
+        board.show()
+        board.make_move(2, 2)
+        board.make_move(5, 1)
+        board.make_move(8, 2)
+        board.make_move(6, 1)
+        board.make_move(7, 1)
+        board.show()
+        self.assertTrue(board.is_win(7, 1), 'Player1 wins with middle row')
+        self.assertFalse(board.is_win(7, 2), 'Player2 loses with middle row')
+        # board.make_move(5, 1)
 
 if __name__ == '__main__':
     test()
+
