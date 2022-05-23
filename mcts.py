@@ -62,6 +62,12 @@ def mcts(board: Board, player1, policy=None):
         # backpropagation
         playouts[square] = playout
 
+        # TODO : more than 1 node lookahead
+        # create tree structure like astar from 15 puzzle
+        # assign win ratio
+        # create reward table
+        # check ucb
+
     return select_move(playouts)
 
 def select_move(playouts: {}):
