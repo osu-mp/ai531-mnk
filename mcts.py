@@ -5,15 +5,18 @@
 # Joe Nguyen
 # Matthew Pacey
 
+import math
 import random
 import unittest
 
 from copy import deepcopy
 
 from board import Board
+from playout import Playout
 
 branch_factor = 10
 max_trials = 1000
+uct_const = math.sqrt(2)            # constant term in uct evaluation
 
 # def mcts_get_best_move(board: Board, player1, player2):
 
@@ -31,21 +34,25 @@ def mcts(board: Board, player1, policy=None):
     selected_squares = random.sample(empty_squares, max_select)
 
     # expansion
-    playouts = {}
+    #playouts = {}
+    utilities = {}
     for square in selected_squares:
         # print(f'Expansion on square {square}')
 
-        exp_board = Board(size=board.size, k=board.k, board=board.board)
+        exp_board = Board(size=board.size, k=board.k, board=board.board, parent=board)
         exp_board.make_move(square, player1)
         # return if this move ends the game
         if exp_board.is_gameover(square, player1):
             # exp_board.show()
             if exp_board.is_tie():
-                playouts[square] = Playout(games=max_trials, wins=0)
+                # playouts[square] = Playout(games=max_trials, wins=0)
+                utilities[square] = 0
             elif exp_board.is_loss(player1):
-                playouts[square] = Playout(games=max_trials, wins=0)
+                # playouts[square] = Playout(games=max_trials, wins=0)
+                utilities[square] = 0
             else:
-                playouts[square] = Playout(games=max_trials, wins=max_trials)
+                # playouts[square] = Playout(games=max_trials, wins=max_trials)
+                utilities[square] = 1
             continue
 
         # simulation
@@ -53,14 +60,20 @@ def mcts(board: Board, player1, policy=None):
         for i in range(max_trials):
             # print(f'Simulation {i} of square {square}')
             # sim_board = deepcopy(exp_board)
-            playout.add_game()
+            #playout.add_game()
 
             score = trial(exp_board, player1)
+
+            # backpropagation
+            exp_board.add_game()
+
             if score == 1:
-                playout.add_win()
+                exp_board.add_win()
+                # playout.add_win()
 
         # backpropagation
-        playouts[square] = playout
+        # playouts[square] = playout
+        utilities[square] = uct(exp_board)
 
         # TODO : more than 1 node lookahead
         # create tree structure like astar from 15 puzzle
@@ -68,7 +81,27 @@ def mcts(board: Board, player1, policy=None):
         # create reward table
         # check ucb
 
-    return select_move(playouts)
+    a = 1
+
+    # select the move with the highest uct utility
+    best_move = max(utilities, key=utilities.get)
+    return best_move
+    # return select_move(utilities)
+
+
+def uct(board: Board):
+    """
+    Upper confidence bounds applied to trees
+    Page 163 in AI book
+    :param board:
+    :return:
+    """
+    n = board.playout.games                                 # number of games simulated at this level
+    value = board.playout.wins / board.playout.games        # exploitation
+    value += uct_const * math.sqrt(math.log(n) * board.parent.playout.get_win_ratio() / n)
+
+    return value
+
 
 def select_move(playouts: {}):
     best_playout = None
@@ -149,22 +182,6 @@ def policy_random(board, player):
     selected = empty_squares[random.randrange(len(empty_squares))]
     return selected
 
-class Playout:
-    def __init__(self, games=0, wins=0):
-        self.games = games
-        self.wins = wins
-
-    def add_win(self):
-        self.wins +=1
-
-    def add_game(self):
-        self.games += 1
-
-    def get_win_ratio(self):
-        return self.wins / self.games
-
-    def __str__(self):
-        return f'{self.wins} / {self.games} ({self.get_win_ratio() * 100}%)'
 class TestMCTS(unittest.TestCase):
     def setUp(self) -> None:
         self.board = Board((3, 3), 3)

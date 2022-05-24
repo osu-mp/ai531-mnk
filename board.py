@@ -5,9 +5,10 @@ import numpy as np
 
 import unittest
 
+from playout import Playout
 
 class Board:
-    def __init__(self, size: Tuple[int, int], k: int, board=None):
+    def __init__(self, size: Tuple[int, int], k: int, board=None, parent=None):
         self.k = k
         self.size = size
         self.gameover = False
@@ -16,6 +17,11 @@ class Board:
             self.board = deepcopy(board)
         else:
             self.board = np.zeros(self.size, dtype=int)
+
+        # used for mcts
+        self.parent = parent
+        self.playout = Playout()
+        # TODO : mpacey is a link to child nodes needed?
 
     def get_diagonal(self, coord: Tuple[int, int], vec: Tuple[int, int]):
         res = []
@@ -214,6 +220,27 @@ class Board:
         """
         raise Exception('Do not use until the get_cells heuristic above is completed')
 
+    def add_game(self):
+        """
+        Increment the game counter for this board and all parent boards
+        Used in mcts
+        :return:
+        """
+        self.playout.add_game()
+
+        if self.parent:
+            self.parent.add_game()
+
+    def add_win(self):
+        """
+        Increment the win counter for this board and all parent boards
+        Used in mcts
+        :return:
+        """
+        self.playout.add_win()
+
+        if self.parent:
+            self.parent.add_win()
 
 # def test():
 
