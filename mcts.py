@@ -46,7 +46,7 @@ class Node:
             return 0
 
         if not self.parent:         # return raw win percentage for root node
-            return self.wins / self.games
+            return 1# self.wins / self.games
 
         # else uct = wins / games + C * sqrt(log n * Parent(n) / n)
         n = self.games  # number of games simulated at this level
@@ -115,7 +115,7 @@ def playout(node):
     """
     # create local copy of board to simulate playout
     board = Board(size=node.board.size, k=node.board.k, board=node.board.board)
-
+    board.make_move(node.square, node.player)
     empty_squares = board.get_empty_squares()
     curr_player = get_other_player(node.player)     # player2 should make first move since player1 selected square prior to trial
     while empty_squares:                            # keep picking squares until board is filled
