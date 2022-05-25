@@ -5,6 +5,7 @@ import numpy as np
 
 import unittest
 
+
 class Board:
     def __init__(self, size: Tuple[int, int], k: int, board=None):
         self.k = k
