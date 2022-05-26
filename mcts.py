@@ -12,7 +12,7 @@ import unittest
 from copy import deepcopy
 from board import Board
 
-uct_const = math.sqrt(2)            # constant term in uct evaluation
+uct_const = 1.25# math.sqrt(2)            # constant term in uct evaluation
 max_mcts_loops = 5000               # number of times to run mcts at each eval
 DEBUG = False                       # set to True for verbose debugging messages
 
@@ -28,12 +28,12 @@ class Node:
     """
     def __init__(self, board, player, parent=None, square=None):
         self.board = deepcopy(board)            # ensure any edits made to the board do not bubble up
+        self.player = player
         self.parent = parent
         self.square = square
         self.children = []
         self.wins = 0
         self.games = 0
-        self.player = player
 
     def get_uct(self):
         """
@@ -46,7 +46,7 @@ class Node:
             return 0
 
         if not self.parent:         # return raw win percentage for root node
-            return 1# self.wins / self.games
+            return self.wins / self.games
 
         # else uct = wins / games + C * sqrt(log n * Parent(n) / n)
         n = self.games  # number of games simulated at this level
@@ -115,17 +115,49 @@ def playout(node):
     """
     # create local copy of board to simulate playout
     board = Board(size=node.board.size, k=node.board.k, board=node.board.board)
+    selected_square = node.square
     board.make_move(node.square, node.player)
     empty_squares = board.get_empty_squares()
     curr_player = get_other_player(node.player)     # player2 should make first move since player1 selected square prior to trial
     while empty_squares:                            # keep picking squares until board is filled
         selected_square = empty_squares[random.randrange(len(empty_squares))]
         board.make_move(selected_square, curr_player)
+
+        if board.is_win(selected_square, node.player):
+            log(f'Result of playout of {node.square}: WIN')
+            if DEBUG:
+                board.show()
+            return 1
+        elif board.is_tie():
+            log(f'Result of playout of {node.square}: TIE')
+            if DEBUG:
+                board.show()
+            return 0.5
+        elif board.is_gameover(selected_square, curr_player):
+            log(f'Result of playout of {node.square}: LOSS')
+            if DEBUG:
+                board.show()
+            return 0
+
         empty_squares = board.get_empty_squares()
         curr_player = get_other_player(curr_player)  # alternate between player 1 and 2 each loop
 
-    if board.is_win(node.square, node.player):      # return 1 if the target player won (use node.square since they may have not made the last move)
+    #raise Exception('not here')
+
+    if board.is_win(selected_square, curr_player) and curr_player == node.player:      # return 1 if the target player won (use node.square since they may have not made the last move)
+        log(f'Result of playout of {node.square}: WIN')
+        if DEBUG:
+            board.show()
         return 1
+    elif board.is_tie():
+        log(f'Result of playout of {node.square}: TIE')
+        if DEBUG:
+            board.show()
+
+        return 0.5
+    log(f'Result of playout of {node.square}: LOSS')
+    if DEBUG:
+        board.show()
     return 0
 
 
@@ -137,8 +169,7 @@ def back_propagate(node: Node, result: int):
     :return:
     """
     node.games += 1
-    if result:
-        node.wins += 1
+    node.wins += result     # 0 = loss, 0.5 = tie, 1 = win
     if not node.parent:
         return
     back_propagate(node.parent, result)
@@ -183,8 +214,14 @@ class TestMCTS(unittest.TestCase):
         """
         # mcts = MCTS(self.board, 1)
         player = 1
+        move_num = 0
         while len(self.board.get_empty_squares()) > 0:
+            move_num += 1
             best_move = mcts_new(self.board, player)
+            if move_num == 1 and best_move not in [0, 2, 4, 6, 8]:
+                raise Exception(f'Bad first move of {best_move}')
+            # if move_num == 2 and best_move not in [4]:
+            #     raise Exception(f'Bad second move of {best_move}')
             self.board.make_move(best_move, player)
             if self.board.is_win(best_move, player):
                 print(f'Player {player} wins!')
