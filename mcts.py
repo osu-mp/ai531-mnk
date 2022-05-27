@@ -10,16 +10,14 @@ import random
 import unittest
 
 from copy import deepcopy
+
 from board import Board
+from util import get_other_player, log
 
-uct_const = 1.25# math.sqrt(2)            # constant term in uct evaluation
-max_mcts_loops = 5000               # number of times to run mcts at each eval
-DEBUG = False                       # set to True for verbose debugging messages
+import cfg
 
-def log(msg: str):
-    # print log messages to console if debugging enabled
-    if DEBUG:
-        print(msg)
+DEBUG = cfg.DEBUG                       # set to True for verbose debugging messages
+
 
 class Node:
     """
@@ -51,7 +49,7 @@ class Node:
         # else uct = wins / games + C * sqrt(log n * Parent(n) / n)
         n = self.games  # number of games simulated at this level
         value = self.wins / n  # exploitation
-        value += uct_const * math.sqrt(math.log(n) * self.parent.get_uct() / n)
+        value += cfg.uct_const * math.sqrt(math.log(n) * self.parent.get_uct() / n)
 
         return value
 
@@ -66,18 +64,21 @@ def mcts_new(board: Board, player):
 
     log('\nNEW MCTS RUN')
 
-    while loops < max_mcts_loops:
+    while loops < cfg.max_mcts_loops:
         loops += 1
-        # selection / expansion
+        # selection
         node = select_node(root)
         # print(f'Selected node at square: {node.square}')
 
+        # expansion
+        leaf = expand_node(node)
+
         # simulation
-        result = playout(node)
+        result = playout(leaf)
         log(f'Result of playout ({node.square}): {result}')
 
         # backpropagation
-        back_propagate(node, result)
+        back_propagate(leaf, result)
 
     best_node = select_node(root)
     log(f'Best node of current root: {best_node.square}')
@@ -104,6 +105,20 @@ def select_node(node: Node):
                 node = child
 
     return node
+
+def expand_node(node):
+    """
+    The given node is the bottom of the current tree. Pick a random child of this node
+    and expand it to a new leaf/node. The playout will occur on the newly created leaf
+    :param node:
+    :return:
+    """
+    empty_squares = node.board.get_empty_squares()
+    selected_square = empty_squares[random.randrange(len(empty_squares))]
+    leaf = Node(node.board, node.player, node, selected_square)
+    leaf.board.make_move(selected_square, leaf.player)
+
+    return leaf
 
 def playout(node):
     """
@@ -175,18 +190,6 @@ def back_propagate(node: Node, result: int):
     back_propagate(node.parent, result)
 
 
-def get_other_player(player):
-    """
-    Get the alternate player (used to switch between for moves)
-    :param player:
-    :return:
-    """
-    if player == 1:
-        return 2
-    else:
-        return 1
-
-
 # TODO : not used yet since no other policies exist yet
 def policy_random(board, player):
     """
@@ -212,27 +215,10 @@ class TestMCTS(unittest.TestCase):
         Work in progress test for mcts
         :return:
         """
-        # mcts = MCTS(self.board, 1)
-        player = 1
-        move_num = 0
-        while len(self.board.get_empty_squares()) > 0:
-            move_num += 1
-            best_move = mcts_new(self.board, player)
-            if move_num == 1 and best_move not in [0, 2, 4, 6, 8]:
-                raise Exception(f'Bad first move of {best_move}')
-            # if move_num == 2 and best_move not in [4]:
-            #     raise Exception(f'Bad second move of {best_move}')
-            self.board.make_move(best_move, player)
-            if self.board.is_win(best_move, player):
-                print(f'Player {player} wins!')
-                self.board.show()
-                break
-            print(f'Best move for player {player} is: {best_move}')
-            self.board.show()
-            player = get_other_player(player)
+        from games import mcts_vs_mcts          # put import inside inner scope to avoid circular references
 
-        print(f'Winning player: {self.board.winner}')
-        self.assertTrue(self.board.winner != 2, 'Player 2 should never win if strategy is correct')
+        player1_wins, player2_wins, ties = mcts_vs_mcts(1, 3, 3, 3)
+        self.assertTrue(player2_wins == 0, 'Player 2 should never win if strategy is correct')
 
 
 if __name__ == '__main__':
