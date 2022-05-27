@@ -22,7 +22,7 @@ class MNKDataCollection(unittest.TestCase):
         Generic algo default is usually square root of 2
         :return:
         '''
-        iterations = 50
+        iterations = 5
         m = 3
         n = 3
         k = 3
@@ -37,18 +37,18 @@ class MNKDataCollection(unittest.TestCase):
                     player1_wins,
                     player2_wins,
                     ties,
-                    player1_wins / iterations * 100,
-                    player2_wins / iterations * 100,
-                    ties / iterations * 100,
+                    int(player1_wins / iterations * 100),
+                    int(player2_wins / iterations * 100),
+                    int(ties / iterations * 100),
                     cfg.max_mcts_loops,
                     uct_val,
                     m,
                     n,
                     k]
                 ])
-                csv.write(line)
+                csv.write(f'{line}\n')
 
-                print(f'\nuct const = {uct_val}')
+                print(f'\nuct const = {uct_val}\n')
                 print(line)
 
 
