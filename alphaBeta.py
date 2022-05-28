@@ -1,8 +1,14 @@
 from copy import deepcopy
 import random
 import time
-fout_ab = open("ab_time.txt", 'w')
-# For diver/testing
+timeFile_for_ab = open("abTime.txt", 'w')
+
+#Player saved in the file from bot_Move
+def save_player(player):
+    f = open('cur_player.txt', 'w')
+    f.write(str(player))
+    f.close()
+# Player retrived from the file    
 def get_player():
     f = open('cur_player.txt', 'r')
     player = int(f.readline())
@@ -44,17 +50,9 @@ def alphaBeta(position, depth, alpha, beta, player, previousMove):
     else:
         return beta
 
-""" These functions are for testing purposes"""
-
-def save_player(player):
-    f = open('cur_player.txt', 'w')
-    f.write(str(player))
-    f.close()
-
 def ab_bot(position, player):
-    # player = -1
     a = -2
-    choices = []
+    moveChoices = []
     if len(position.get_empty_squares()) == position.size ** 2: # best 1st move
         return position.size ** 2 // 2 + 1
     players = [None, 'O', 'X']
@@ -65,25 +63,19 @@ def ab_bot(position, player):
         print("move", move, "causes to", players[val], "wins!")
         if val > a:
             a = val
-            choices = [move]
+            moveChoices = [move]
         elif val == a:
-            choices.append(move)
-    return random.choice(choices)
+            moveChoices.append(move)
+    return random.choice(moveChoices)
 
-def bot_move(position, player, t):
+def bot_move(position, player, algoType):
     save_player(player)
-    if t == None:
-        players = [None, 'X', 'O']
-        ans = str(input("I'm '" + str(players[player]) + "'. Which Bot do u prefer? [mm/ab/mc/r] "))
-        if ans == 'ab':
-            move = ab_bot(position, player)
-
-        print("My move is...")
-    else:
-        if t == 'ab':
-            start = time.time()
-            move = ab_bot(position, player)
-            end = time.time()
-            fout_ab.write(str(end - start) + '\n')
-            # move = ab_bot(position, player)
+    # This check is only there to ensure that the correct parameter(i.e ab) is passed
+    if algoType == 'ab':
+        start = time.time()
+        move = ab_bot(position, player)
+        end = time.time()
+        #Reccods time by creating a new file
+        timeFile_for_ab.write(str(end - start) + '\n')
     return move
+
