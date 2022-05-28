@@ -31,7 +31,7 @@ def alphaBeta(position, depth, alpha, beta, player, previousMove):
     for i in position.get_empty_squares():
         positionCopy = deepcopy(position)
         positionCopy.make_move(i, player)
-        # recursive call with a deepcopy of the position, oppositing player, and the updated move or i
+        # recursive call with a deepcopy of the position, opposing player, and the updated move or i
         val = alphaBeta(positionCopy, depth-1, alpha, beta, get_oppossing_player(player), i)
         # If player is alpha
         if player ==  get_player():
@@ -79,3 +79,6 @@ def bot_move(position, player, algoType):
         timeFile_for_ab.write(str(end - start) + '\n')
     return move
 
+"""
+Endpoint: Call obj.bot_move(1: position/board, 1/-1 depending on the player you want to go firt, always 'ab')
+"""
