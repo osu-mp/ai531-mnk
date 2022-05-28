@@ -114,7 +114,7 @@ def expand_node(node):
     :return:
     """
     # expansion policy: half the time pick a random sqaure, the other half pick an empty square with the most neighbors
-    rand = random()
+    rand = random.random()
     if rand > 0.5:
         selected_square = node.board.get_random_empty_square()
     else:
