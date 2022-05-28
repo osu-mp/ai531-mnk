@@ -2,6 +2,7 @@ from copy import deepcopy
 from typing import Tuple, Literal
 from termcolor import colored
 import numpy as np
+import random
 
 from collections import defaultdict
 from queue import PriorityQueue
@@ -53,6 +54,11 @@ class Board:
                     # size is a tuple m,n so use the m-index to get a unique id for each square
                     empty_squares += [i * self.size[0] + j]
         return empty_squares
+
+    def get_random_empty_square(self):
+        # of the empty cells, return a randomly selected one
+        empty_squares = self.get_empty_squares()
+        return empty_squares[random.randrange(len(empty_squares))]
 
     def is_within_board_pos(self, pos: int):
         return 0 <= pos < self.size[0] * self.size[1]
