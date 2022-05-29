@@ -8,6 +8,10 @@
 uct_const = 1.1 # math.sqrt(2)            # constant term in uct evaluation
 max_mcts_loops = 250               # number of times to run mcts at each eval
 
+# dial for which node is selected; if random number between 0 and 1 is greater than this, random node
+# will be selected; else best node will be selected using uct policy
+select_random_chance = 0.5
+
 # dial for which node is expanded; if random number between 0 and 1 is greater than this, random node
 # will be generated; else best node will be expanded using policy
 expand_random_chance = 0 # .3

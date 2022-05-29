@@ -224,7 +224,7 @@ class Board:
 
         return counts
 
-    def get_emtpy_cell_priority_queue(self):
+    def get_emtpy_cell_priority_queue(self, player=0):
         """
         Return a priority queue for the empty cells, ordered by cells with most filled cells
         Each entry is (neighbors, cell id)
@@ -234,6 +234,15 @@ class Board:
         cells_counts = self.get_emtpy_cell_neighbor_count()
         if len(cells_counts) > 0:
             for cell in cells_counts.keys():
+                self.make_move(cell, player)            # make the move for the player and see if it won
+                if self.is_win(cell, player):
+                    # if a win, set the value as negative 9; no cell can have more than 8 neighbors, so this will
+                    # ensure the cell is at the front of the priority queue (lowest numbers first)
+                    queue.put((-9, cell))
+                    continue
+                else:
+                    self.make_move(cell, val=0)         # if not a winning move, make sure to undo move (set back to player 0)
+
                 # multiply filled neighbor count by negative 1 to put most constrained empty cells first
                 # i.e. a cell with only 1 open neighbor is more valuable than one with 8 (no filled neighbors)
                 # the priority queue would then be -1, -8
@@ -411,7 +420,7 @@ class TestBoard(unittest.TestCase):
         board.make_move(0, 1)
         board.make_move(1, 1)
         board.make_move(3, 1)
-        queue = board.get_emtpy_cell_priority_queue()
+        queue = board.get_emtpy_cell_priority_queue(player=1)
         best = queue.get()
         # with cells 0, 1, and 3 taken this means that cell 4 is the best since it has 3 occupied neighbors
         self.assertEqual(best[1], 4)
@@ -419,10 +428,33 @@ class TestBoard(unittest.TestCase):
         # once cells 4 and 6 are taken, cell 7 is the best (3 neighbors)
         board.make_move(4, 1)
         board.make_move(6, 1)
-        queue = board.get_emtpy_cell_priority_queue()
+        queue = board.get_emtpy_cell_priority_queue(player=1)
         best = queue.get()
         # with cells 0, 1, and 3 taken this means that cell 4 is the best since it has 3 occupied neighbors
         self.assertEqual(best[1], 7)
+
+    def test_get_emtpy_cell_priority_queue_winning_move(self):
+        """
+        Test the priority queue algo returns the winning move (even though it does not have the most neighbors)
+
+        :return:
+        """
+        board = Board((3, 3), 3)
+
+        # setup the board so that X is looking to win with diagonal from top left to bottom right
+        board.make_move(0, 1)
+        board.make_move(1, 2)
+        board.make_move(4, 1)
+        board.make_move(2, 2)
+        board.show()
+        # when the priority queue is created, cells 3 and 5 will have the most nieghors (3 each)
+        # however, if X picks the bottom right, it will win so that cell should be at the front of the queue
+        # even though it only has 1 neighbor
+        queue = board.get_emtpy_cell_priority_queue(player=1)
+        best = queue.get()
+        # with cells 0, 1, and 3 taken this means that cell 4 is the best since it has 3 occupied neighbors
+        self.assertEqual(best[1], 8)
+
 
 if __name__ == '__main__':
     unittest.main()

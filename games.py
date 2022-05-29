@@ -55,6 +55,8 @@ def mcts_vs_mcts(n_games: int, m: int, n: int, k: int):
         else:
             ties += 1
 
+        # board.show()
+
     return player1_wins, player2_wins, ties
 
 

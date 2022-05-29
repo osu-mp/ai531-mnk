@@ -89,23 +89,28 @@ def mcts_new(board: Board, player):
 
 
 def select_node(node: Node):
+    rand = random.random()
+    if rand > cfg.select_random_chance:
+        rand_child = random.randrange(len(node.children))
+        node = node.children[rand_child]
 
+    else:
     # if any nodes are unvisited, try them first
-    for child in node.children:
-        if child.games == 0:
-            log(f'Returning unvisited node: {child.square}')
-            return child
+    # for child in node.children:
+    #     if child.games == 0:
+    #         log(f'Returning unvisited node: {child.square}')
+    #         return child
 
-    # else select the node with the best uct value
-    while len(node.children) > 0:
-        best_uct = -1
-        # pick the child node with the highest uct
-        for child in node.children:
-            uct = child.get_uct()
-            log(f'UCT of {child.square} = {uct}')
-            if uct > best_uct:
-                best_uct = uct
-                node = child
+        # else select the node with the best uct value
+        while len(node.children) > 0:
+            best_uct = -1
+            # pick the child node with the highest uct
+            for child in node.children:
+                uct = child.get_uct()
+                log(f'UCT of {child.square} = {uct}')
+                if uct > best_uct:
+                    best_uct = uct
+                    node = child
 
     return node
 
@@ -121,7 +126,7 @@ def expand_node(node):
     if rand > cfg.expand_random_chance:
         selected_square = node.board.get_random_empty_square()
     else:
-        queue = node.board.get_emtpy_cell_priority_queue()
+        queue = node.board.get_emtpy_cell_priority_queue(node.player)
         if queue.empty():
             selected_square = node.board.get_random_empty_square()      # if queue is empty, pick a random square
         else:
