@@ -28,7 +28,7 @@ class MNKDataCollection(unittest.TestCase):
         k = 3
 
         with open('data/mcts.csv', 'w') as csv:
-            csv.write(f'player1_wins,player2_wins,ties,player1_pct,player2_pct,tie_pct,mcts_loops,uct_const,m,n,k')
+            csv.write(f'player1_wins,player2_wins,ties,player1_pct,player2_pct,tie_pct,mcts_loops,uct_const,m,n,k\n')
             for sim_num in range(10):
                 player1_wins, player2_wins, ties = mcts_vs_mcts(iterations, m, n, k)
 
@@ -54,13 +54,13 @@ class MNKDataCollection(unittest.TestCase):
         Generic algo default is usually square root of 2
         :return:
         '''
-        iterations = cfg.data_collection_loops
+        iterations = 10 # cfg.data_collection_loops
         m = 3
         n = 3
         k = 3
 
         with open('data/mcts_varying_uct.csv', 'w') as csv:
-            csv.write(f'player1_wins,player2_wins,ties,player1_pct,player2_pct,tie_pct,mcts_loops,uct_const,m,n,k')
+            csv.write(f'player1_wins,player2_wins,ties,player1_pct,player2_pct,tie_pct,mcts_loops,uct_const,m,n,k\n')
             for uct_val in [1., 1.05, 1.1, 1.15, 1.2, 1.4, 2., 3, 4]:
                 cfg.uct_const = uct_val
                 player1_wins, player2_wins, ties = mcts_vs_mcts(iterations, m, n, k)
@@ -95,7 +95,7 @@ class MNKDataCollection(unittest.TestCase):
         k = 3
 
         with open('data/mcts_varying_loop_count.csv', 'w') as csv:
-            csv.write(f'player1_wins,player2_wins,ties,player1_pct,player2_pct,tie_pct,mcts_loops,uct_const,m,n,k')
+            csv.write(f'player1_wins,player2_wins,ties,player1_pct,player2_pct,tie_pct,mcts_loops,uct_const,m,n,k\n')
             for loop_count in [50, 250, 500, 1000]:
                 cfg.max_mcts_loops = loop_count
                 player1_wins, player2_wins, ties = mcts_vs_mcts(iterations, m, n, k)

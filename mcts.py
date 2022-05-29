@@ -49,7 +49,7 @@ class Node:
         # else uct = wins / games + C * sqrt(log n * Parent(n) / n)
         n = self.games  # number of games simulated at this level
         value = self.wins / n  # exploitation
-        value += cfg.uct_const * math.sqrt(math.log(n) * self.parent.get_uct() / n)
+        value += cfg.uct_const * math.sqrt(math.log(n) * self.parent.get_uct() / n)     # exploration
 
         return value
 
