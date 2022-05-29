@@ -115,7 +115,7 @@ def expand_node(node):
     """
     # expansion policy: half the time pick a random sqaure, the other half pick an empty square with the most neighbors
     rand = random.random()
-    if rand > 0.5:
+    if rand > cfg.expand_random_chance:
         selected_square = node.board.get_random_empty_square()
     else:
         queue = node.board.get_emtpy_cell_priority_queue()
