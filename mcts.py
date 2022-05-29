@@ -5,136 +5,205 @@
 # Joe Nguyen
 # Matthew Pacey
 
+import math
 import random
 import unittest
 
 from copy import deepcopy
 
 from board import Board
+from util import get_other_player, log
 
-branch_factor = 10
-max_trials = 1000
+import cfg
 
-# def mcts_get_best_move(board: Board, player1, player2):
+DEBUG = cfg.DEBUG                       # set to True for verbose debugging messages
 
-def mcts(board: Board, player1, policy=None):
-    # for each possible square in the board, run a simulation
-    # selection
-    empty_squares = board.get_empty_squares()
-    # if not empty_squares:
-    #     raise Exception('matt')
-    #     if board.did_player_win(player1):
-    #         return 1
-    #     else:
-    #         return 0
-    max_select = min(branch_factor, len(empty_squares))    # prevents from selecting more squares than remaining
-    selected_squares = random.sample(empty_squares, max_select)
 
-    # expansion
-    playouts = {}
-    for square in selected_squares:
-        # print(f'Expansion on square {square}')
+class Node:
+    """
+    Node for tree search. Maintain parent, children, baard state and move to get to this node
+    Maintain the number of wins and games for each node (propagates up tree after simulation)
+    """
+    def __init__(self, board, player, parent=None, square=None):
+        self.board = deepcopy(board)            # ensure any edits made to the board do not bubble up
+        self.player = player
+        self.parent = parent
+        self.square = square
+        self.children = []
+        self.wins = 0
+        self.games = 0
 
-        exp_board = Board(size=board.size, k=board.k, board=board.board)
-        exp_board.make_move(square, player1)
-        # return if this move ends the game
-        if exp_board.is_gameover(square, player1):
-            # exp_board.show()
-            if exp_board.is_tie():
-                playouts[square] = Playout(games=max_trials, wins=0)
-            elif exp_board.is_loss(player1):
-                playouts[square] = Playout(games=max_trials, wins=0)
-            else:
-                playouts[square] = Playout(games=max_trials, wins=max_trials)
-            continue
+    def get_uct(self):
+        """
+        Upper confidence bounds applied to trees
+        Page 163 in AI book
+        uct = wins / games + C * sqrt(log n * Parent(n) / n)
+        :return:
+        """
+        if self.games == 0:         # avoid divide by zero
+            return 0
+
+        if not self.parent:         # return raw win percentage for root node
+            return self.wins / self.games
+
+        # else uct = wins / games + C * sqrt(log n * Parent(n) / n)
+        n = self.games  # number of games simulated at this level
+        value = self.wins / n  # exploitation
+        #value += cfg.uct_const * math.sqrt(math.log(n) * self.parent.get_uct() / n)     # exploration
+        value += cfg.uct_const * math.sqrt(math.log(self.games) / cfg.max_mcts_loops)
+
+        # TODO : is this new algo correct/better?
+
+        return value
+
+
+def mcts_new(board: Board, player):
+    # TODO add time tracker?
+    loops = 0
+    root = Node(board, player, None, None)
+    for square in board.get_empty_squares():
+        node = Node(board, player, root, square)
+        root.children.append(node)
+
+    log('\nNEW MCTS RUN')
+
+    while loops < cfg.max_mcts_loops:
+        loops += 1
+        # selection
+        node = select_node(root)
+        # print(f'Selected node at square: {node.square}')
+
+        # expansion
+        leaf = expand_node(node)
 
         # simulation
-        playout = Playout()
-        for i in range(max_trials):
-            # print(f'Simulation {i} of square {square}')
-            # sim_board = deepcopy(exp_board)
-            playout.add_game()
-
-            score = trial(exp_board, player1)
-            if score == 1:
-                playout.add_win()
+        result = playout(leaf)
+        log(f'Result of playout ({node.square}): {result}')
 
         # backpropagation
-        playouts[square] = playout
+        back_propagate(leaf, result)
 
-        # TODO : more than 1 node lookahead
-        # create tree structure like astar from 15 puzzle
-        # assign win ratio
-        # create reward table
-        # check ucb
-
-    return select_move(playouts)
-
-def select_move(playouts: {}):
-    best_playout = None
-    best_move = None
-    for move, playout in playouts.items():
-        if not best_playout:
-            best_playout = playout
-            best_move = move
-            continue
-        if playout.get_win_ratio() > best_playout.get_win_ratio():
-            best_playout = playout
-            best_move = move
-        # if two playouts have the same win ration, pick the one with more games
-        if playout.get_win_ratio() == best_playout.get_win_ratio():
-            if playout.games > best_playout.games:
-                best_playout = playout
-                best_move = move
-
-    return best_move
+    best_node = select_node(root)
+    log(f'Best node of current root: {best_node.square}')
+    return best_node.square
 
 
+def select_node(node: Node):
 
+    # if any nodes are unvisited, try them first
+    for child in node.children:
+        if child.games == 0:
+            log(f'Returning unvisited node: {child.square}')
+            return child
 
-def get_other_player(player):
+    # else select the node with the best uct value
+    while len(node.children) > 0:
+        best_uct = -1
+        # pick the child node with the highest uct
+        for child in node.children:
+            uct = child.get_uct()
+            log(f'UCT of {child.square} = {uct}')
+            if uct > best_uct:
+                best_uct = uct
+                node = child
+
+    return node
+
+def expand_node(node):
     """
-    Get the alternate player (used to switch between for moves)
-    :param player:
+    The given node is the bottom of the current tree. Pick a random child of this node
+    and expand it to a new leaf/node. The playout will occur on the newly created leaf
+    :param node:
     :return:
     """
-    if player == 1:
-        return 2
+    # expansion policy: half the time pick a random sqaure, the other half pick an empty square with the most neighbors
+    rand = random.random()
+    if rand > cfg.expand_random_chance:
+        selected_square = node.board.get_random_empty_square()
     else:
-        return 1
+        queue = node.board.get_emtpy_cell_priority_queue()
+        if queue.empty():
+            selected_square = node.board.get_random_empty_square()      # if queue is empty, pick a random square
+        else:
+            best = queue.get()
+            selected_square = best[1]
 
-def trial(board, player1):
+    leaf = Node(node.board, node.player, node, selected_square)
+    leaf.board.make_move(selected_square, leaf.player)
+
+    return leaf
+
+def playout(node):
     """
-    Playout the board for the given player
-    :param board:
-    :param player:
+    For the given node, simulate a playout by selecting random moves for each player
+    Start with the opposite player since the previous selection was done by current player
+    Return 1 if the current player wins, else 0
+    :param node:
     :return:
     """
-    board = Board(size=board.size, k=board.k, board=board.board)
-
+    # create local copy of board to simulate playout
+    board = Board(size=node.board.size, k=node.board.k, board=node.board.board)
+    selected_square = node.square
+    board.make_move(node.square, node.player)
     empty_squares = board.get_empty_squares()
-    curr_player = get_other_player(player1)       # player2 should make first move since player1 selected square prior to trial
-    while empty_squares:
+    curr_player = get_other_player(node.player)     # player2 should make first move since player1 selected square prior to trial
+    while empty_squares:                            # keep picking squares until board is filled
         selected_square = empty_squares[random.randrange(len(empty_squares))]
         board.make_move(selected_square, curr_player)
+
+        if board.is_win(selected_square, node.player):
+            log(f'Result of playout of {node.square}: WIN')
+            if DEBUG:
+                board.show()
+            return 1
+        elif board.is_tie():
+            log(f'Result of playout of {node.square}: TIE')
+            if DEBUG:
+                board.show()
+            return 0.5
+        elif board.is_gameover(selected_square, curr_player):
+            log(f'Result of playout of {node.square}: LOSS')
+            if DEBUG:
+                board.show()
+            return 0
+
         empty_squares = board.get_empty_squares()
-        curr_player = get_other_player(curr_player)            # alternate between player 1 and 2 each loop
+        curr_player = get_other_player(curr_player)  # alternate between player 1 and 2 each loop
 
-        if board.is_gameover(selected_square, player1):
-            if board.is_win(selected_square, player1):
-                return 1
-            return 0
+    #raise Exception('not here')
 
-    try:
-        if board.is_gameover(selected_square, player1):
-            if board.is_win(selected_square, player1):
-                return 1
-            return 0
-    except:
-        a = 1
+    if board.is_win(selected_square, curr_player) and curr_player == node.player:      # return 1 if the target player won (use node.square since they may have not made the last move)
+        log(f'Result of playout of {node.square}: WIN')
+        if DEBUG:
+            board.show()
+        return 1
+    elif board.is_tie():
+        log(f'Result of playout of {node.square}: TIE')
+        if DEBUG:
+            board.show()
+
+        return 0.5
+    log(f'Result of playout of {node.square}: LOSS')
+    if DEBUG:
+        board.show()
+    return 0
 
 
-@staticmethod
+def back_propagate(node: Node, result: int):
+    """
+    Once a node has been simulated increase the game and (possibly) win counters for it and all parent nodes
+    :param node:
+    :param result:
+    :return:
+    """
+    node.games += 1
+    node.wins += result     # 0 = loss, 0.5 = tie, 1 = win
+    if not node.parent:
+        return
+    back_propagate(node.parent, result)
+
+
+# TODO : not used yet since no other policies exist yet
 def policy_random(board, player):
     """
     Random policy for mcts
@@ -149,65 +218,24 @@ def policy_random(board, player):
     selected = empty_squares[random.randrange(len(empty_squares))]
     return selected
 
-class Playout:
-    def __init__(self, games=0, wins=0):
-        self.games = games
-        self.wins = wins
 
-    def add_win(self):
-        self.wins +=1
-
-    def add_game(self):
-        self.games += 1
-
-    def get_win_ratio(self):
-        return self.wins / self.games
-
-    def __str__(self):
-        return f'{self.wins} / {self.games} ({self.get_win_ratio() * 100}%)'
 class TestMCTS(unittest.TestCase):
     def setUp(self) -> None:
         self.board = Board((3, 3), 3)
 
-    def skip_test_trial(self):
-        pass#MCTS.trial(self.board, 1)
-
-    def test_select_move(self):
-        """
-        Unit test for select_move, get the best move given playouts
-        :return:
-        """
-        p1 = Playout()
-        p1.add_game()
-        p1.add_game()
-        p1.add_win()
-        p2 = Playout()
-        p2.add_game()
-        p2.add_win()
-
-        playouts = {1: p1, 2: p2}
-
-        self.assertEqual(2, select_move(playouts), 'p2 should be chosen (100% win ratio)')
-
-    def test_mcts(self):
+    def test_mcts_new(self):
         """
         Work in progress test for mcts
         :return:
         """
-        # mcts = MCTS(self.board, 1)
-        player = 1
-        while len(self.board.get_empty_squares()) > 0:
-            best_move = mcts(self.board, player)
-            self.board.make_move(best_move, player)
-            if self.board.is_win(best_move, player):
-                print(f'Player {player} wins!')
-                self.board.show()
-                break;
-            print(f'Best move for player {player} is: {best_move}')
-            self.board.show()
-            player = get_other_player(player)
+        from games import mcts_vs_mcts          # put import inside inner scope to avoid circular references
 
-        print(f'Winning player: {self.board.winner}')
+        games = 20
+        player1_wins, player2_wins, ties = mcts_vs_mcts(games, 3, 3, 3)
+        print(f'Player1 Wins: {player1_wins} ({(int)(player1_wins / games * 100)} %%)')
+        print(f'Player2 Wins: {player2_wins} ({(int)(player2_wins / games * 100)} %%)')
+        print(f'        Ties: {ties} ({(int)(ties / games * 100)} %%)')
+        # self.assertTrue(player2_wins == 0, 'Player 2 should never win if strategy is correct')
 
 
 if __name__ == '__main__':
