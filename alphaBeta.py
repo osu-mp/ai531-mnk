@@ -1,6 +1,8 @@
 from copy import deepcopy
 import random
 import time
+from util import get_other_player
+from board import Board
 timeFile_for_ab = open("abTime.txt", 'w')
 
 #Player saved in the file from bot_Move
@@ -14,25 +16,20 @@ def get_player():
     player = int(f.readline())
     return player
 
-def get_oppossing_player(player):
-    if player == -1:
-        return 1
-    return -1
-
-def alphaBeta(position, depth, alpha, beta, player, previousMove):
-    if position.is_gameover(previousMove, get_oppossing_player(player)) or depth == 0:
+def alphaBeta(position: Board, depth, alpha, beta, player, previousMove):
+    if position.is_gameover(previousMove, get_other_player(player)) or depth == 0:
         activePlayer = get_player()
-        if activePlayer == -1:
-            return position.winner() * (-1)
+        if activePlayer == 2:
+            return position.winner * (-1)
         elif activePlayer == 1:
-            return position.winner()
+            return position.winner
         return 0
 
     for i in position.get_empty_squares():
         positionCopy = deepcopy(position)
         positionCopy.make_move(i, player)
         # recursive call with a deepcopy of the position, opposing player, and the updated move or i
-        val = alphaBeta(positionCopy, depth-1, alpha, beta, get_oppossing_player(player), i)
+        val = alphaBeta(positionCopy, depth-1, alpha, beta, get_other_player(player), i)
         # If player is alpha
         if player ==  get_player():
             if alpha > val:
@@ -50,17 +47,19 @@ def alphaBeta(position, depth, alpha, beta, player, previousMove):
     else:
         return beta
 
-def ab_bot(position, player):
+def ab_bot(position:Board, player):
     a = -2
     moveChoices = []
-    if len(position.get_empty_squares()) == position.size ** 2: # best 1st move
-        return position.size ** 2 // 2 + 1
-    players = [None, 'O', 'X']
+
+   # if len(position.get_empty_squares()) == position.size[][] ** 2: # best 1st move
+    #    return position.size[1] ** 2 // 2 + 1
+
+    players = [0,1,2]
     for move in position.get_empty_squares():
         clone = deepcopy(position)
         clone.make_move(move, player)
-        val = alphaBeta(clone, 4, -2, 2, get_oppossing_player(player), move)
-        print("move", move, "causes to", players[val], "wins!")
+        val = alphaBeta(clone, 4, -2, 2, get_other_player(player), move)
+        print("move", move, "causes player", players[val], "to win")
         if val > a:
             a = val
             moveChoices = [move]
@@ -68,7 +67,7 @@ def ab_bot(position, player):
             moveChoices.append(move)
     return random.choice(moveChoices)
 
-def bot_move(position, player, algoType):
+def bot_move(position: Board, player, algoType):
     save_player(player)
     # This check is only there to ensure that the correct parameter(i.e ab) is passed
     if algoType == 'ab':
@@ -80,5 +79,5 @@ def bot_move(position, player, algoType):
     return move
 
 """
-Endpoint: Call obj.bot_move(1: position/board, 1/-1 depending on the player you want to go firt, always 'ab')
+Endpoint: Call obj.bot_move(1: position/board, 1/-1 depending on the player you want to go first, always 'ab')
 """
