@@ -49,7 +49,10 @@ class Node:
         # else uct = wins / games + C * sqrt(log n * Parent(n) / n)
         n = self.games  # number of games simulated at this level
         value = self.wins / n  # exploitation
-        value += cfg.uct_const * math.sqrt(math.log(n) * self.parent.get_uct() / n)     # exploration
+        #value += cfg.uct_const * math.sqrt(math.log(n) * self.parent.get_uct() / n)     # exploration
+        value += cfg.uct_const * math.sqrt(math.log(self.games) / cfg.max_mcts_loops)
+
+        # TODO : is this new algo correct/better?
 
         return value
 
@@ -227,7 +230,7 @@ class TestMCTS(unittest.TestCase):
         """
         from games import mcts_vs_mcts          # put import inside inner scope to avoid circular references
 
-        games = 200
+        games = 20
         player1_wins, player2_wins, ties = mcts_vs_mcts(games, 3, 3, 3)
         print(f'Player1 Wins: {player1_wins} ({(int)(player1_wins / games * 100)} %%)')
         print(f'Player2 Wins: {player2_wins} ({(int)(player2_wins / games * 100)} %%)')
