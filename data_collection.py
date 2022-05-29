@@ -54,7 +54,7 @@ class MNKDataCollection(unittest.TestCase):
         Generic algo default is usually square root of 2
         :return:
         '''
-        iterations = 10 # cfg.data_collection_loops
+        iterations = cfg.data_collection_loops
         m = 3
         n = 3
         k = 3
