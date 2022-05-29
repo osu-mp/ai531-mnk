@@ -130,7 +130,7 @@ class MNKDataCollection(unittest.TestCase):
 
         with open('data/mcts_varying_expand_chance.csv', 'w') as csv:
             csv.write(f'p1_wins,p2_wins,ties,p1_pct,p2_pct,tie_pct,mcts_loops,random_pct,m,n,k')
-            for random_pct in [0.1, 0.3, 0.5, 0.7, 0.9]:
+            for random_pct in [0, 0.25, 0.5, 0.75, 1]:
                 cfg.expand_random_chance = random_pct
                 player1_wins, player2_wins, ties = mcts_vs_mcts(iterations, m, n, k)
 

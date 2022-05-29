@@ -13,4 +13,4 @@ max_mcts_loops = 500               # number of times to run mcts at each eval
 expand_random_chance = 0 # .3
 DEBUG = False                       # set to True for verbose debugging messages
 
-data_collection_loops = 500         # default number of loops for each data collection test
+data_collection_loops = 200         # default number of loops for each data collection test
