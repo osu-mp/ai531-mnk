@@ -1,4 +1,4 @@
-player1_wins,player2_wins,ties,player1_pct,player2_pct,tie_pct,mcts_loops,uct_const,m,n,k
+p1_wins,p2_wins,ties,p1_pct,p2_pct,tie_pct,mcts_loops,uct_const,m,n,k
 314,133,53,62,26,10,200,1.2,3,3,3
 324,123,53,64,24,10,200,1.2,3,3,3
 298,141,61,59,28,12,200,1.2,3,3,3
