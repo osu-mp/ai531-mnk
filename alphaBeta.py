@@ -3,7 +3,9 @@ import random
 import time
 from util import get_other_player
 from board import Board
-timeFile_for_ab = open("abTime.txt", 'w')
+ab_time_filename = 'abTime.txt'
+
+# timeFile_for_ab = open("abTime.txt", 'w')
 
 #Player saved in the file from bot_Move
 def save_player(player):
@@ -14,6 +16,7 @@ def save_player(player):
 def get_player():
     f = open('cur_player.txt', 'r')
     player = int(f.readline())
+    f.close()
     return player
 
 def alphaBeta(position: Board, depth, alpha, beta, player, previousMove):
@@ -75,7 +78,8 @@ def bot_move(position: Board, player, algoType):
         move = ab_bot(position, player)
         end = time.time()
         #Reccods time by creating a new file
-        timeFile_for_ab.write(str(end - start) + '\n')
+        with open(ab_time_filename, 'w+') as timeFile_for_ab:
+            timeFile_for_ab.write(str(end - start) + '\n')
     return move
 
 """

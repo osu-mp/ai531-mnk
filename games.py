@@ -60,7 +60,7 @@ def mcts_vs_mcts(n_games: int, m: int, n: int, k: int):
 
 def ab_vs_ab(n_games: int, m: int, n: int, k: int):
     '''
-    Simulate n games of mcts vs. mcts using m by n board (k consecutive to win)
+    Simulate n games of alpha-beta vs. alpha-beta using m by n board (k consecutive to win)
     :param n_games: number of games to simulate
     :return: player1 wins, player2 wins, ties
     '''
@@ -75,7 +75,7 @@ def ab_vs_ab(n_games: int, m: int, n: int, k: int):
             best_move = bot_move(board,player,'ab')
             board.make_move(best_move, player)
             if board.is_win(best_move, player):
-                print(f'Player {player} wins!')
+                print(f'Player {player} wins! ({n_game} of {n_games}')
                 if cfg.DEBUG:
                     board.show()
                 break
