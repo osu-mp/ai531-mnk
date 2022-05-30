@@ -62,7 +62,7 @@ def ab_bot(position:Board, player):
         clone = deepcopy(position)
         clone.make_move(move, player)
         val = alphaBeta(clone, 4, -2, 2, get_other_player(player), move)
-        # print("move", move, "causes player", players[val], "to win")
+        print("move", move, "causes player", players[val], "to win")
         if val > a:
             a = val
             moveChoices = [move]
@@ -77,22 +77,11 @@ def bot_move(position: Board, player, algoType):
         start = time.time()
         move = ab_bot(position, player)
         end = time.time()
-        # records time by creating a new file
+        #Reccods time by creating a new file
         with open(ab_time_filename, 'w+') as timeFile_for_ab:
             timeFile_for_ab.write(str(end - start) + '\n')
-
-    # elif algoType == 'mcts':
-    #     start = time.time()
-    #     move = mcts_new(position, player)
-    #     end = time.time()
-    #     # records time by creating a new file
-    #     with open(cfg.mcts_time_filname, 'w+') as fh:
-    #         fh.write(str(end - start) + '\n')
-
     return move
-
 
 """
 Endpoint: Call obj.bot_move(1: position/board, 1/-1 depending on the player you want to go first, always 'ab')
 """
-
