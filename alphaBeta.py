@@ -1,7 +1,7 @@
 from copy import deepcopy
 import random
 import time
-from util import get_other_player
+from util import get_other_player, log
 from board import Board
 ab_time_filename = 'abTime.txt'
 
@@ -12,7 +12,7 @@ def save_player(player):
     f = open('cur_player.txt', 'w')
     f.write(str(player))
     f.close()
-# Player retrived from the file    
+# Player retrived from the file
 def get_player():
     f = open('cur_player.txt', 'r')
     player = int(f.readline())
@@ -62,7 +62,7 @@ def ab_bot(position:Board, player):
         clone = deepcopy(position)
         clone.make_move(move, player)
         val = alphaBeta(clone, 4, -2, 2, get_other_player(player), move)
-        print("move", move, "causes player", players[val], "to win")
+        log(f"move {move} causes player {players[val]} to win")
         if val > a:
             a = val
             moveChoices = [move]
