@@ -319,5 +319,42 @@ class MNKDataCollection(unittest.TestCase):
                 csv.write(f'{line}\n')
                 print(f'AB vs MCTS: p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%')
 
+
+    def test_collect_report_data(self):
+        '''
+        Collect data for various board sizes
+        :return:
+        '''
+        iterations = cfg.data_collection_loops
+
+        # start log new each time, only add headers
+        with open('data/report_numbers.csv', 'w') as csv:
+            csv.write(f'm,n,k,p1,p2,p1_pct,p2_pct,tie_pct,games\n')
+
+        for m in range(3, 10):             # test for boards from 3x3 to 9x9
+            for k in range(3, 7):           # test for board to require 3 to 6 cells in a row to win
+                if k > m:                   # skip cases where board cannot support winning condition
+                    pass
+
+                # TODO add 4 game configs
+                # TODO collect runtime for each opponent
+                '''
+                line = ','.join([str(val) for val in [
+                    player1_wins,
+                    player2_wins,
+                    ties,
+                    p1_pct,
+                    p2_pct,
+                    tie_pct,
+                    m,
+                    n,
+                    k]
+                                 ])
+            
+                
+                # append each entry during loop rather than all at end
+                with open('data/report_numbers.csv', 'w+') as csv:
+                    csv.write(line)
+                '''
 if __name__ == '__main__':
     unittest.main()
