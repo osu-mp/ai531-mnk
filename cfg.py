@@ -19,7 +19,7 @@ expand_random_chance = 0.9 # .3
 DEBUG = False                       # set to True for verbose debugging messages
 show_each_move = False
 
-data_collection_loops = 150         # default number of loops for each data collection test
+data_collection_loops = 20         # default number of loops for each data collection test
 
 
 mcts_time_filname = 'mctsTime.txt'

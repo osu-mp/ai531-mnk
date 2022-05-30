@@ -107,23 +107,11 @@ class Board:
     def get_diagonal_topright(self, r: int, c: int):
         return self.get_diagonal((r, c), (-1, 1)) + [self.board[r][c]] + self.get_diagonal((r, c), (1, -1))
 
-    def check_win(self, pos: int, player: Literal[0, 1, 2]):
-        """
-        Test if the given position wins for the given player. Return True if a win, else false
-        :param pos:
-        :param player:
-        :return:
-        """
-        self.make_move(pos, player)             # simulate the player making the move
-        is_win = self.is_win(pos, player)       # check for win
-        self.make_move(pos, val=0)              # undo move (set square to player 0)
-        return is_win
-
     def is_game_ending_move(self, pos: int):
         """
         Test whether taking the square is a game ending move (if either player wins with that square)
         :param pos:
-        :return:
+        :return:    True if taking the square wins the game for either player, else false
         """
         game_over = False
         for player in [1, 2]:
@@ -252,7 +240,7 @@ class Board:
 
         return counts
 
-    def get_emtpy_cell_priority_queue(self, player=0):
+    def get_emtpy_cell_priority_queue(self, player):
         """
         Return a priority queue for the empty cells, ordered by cells with most filled cells
         Each entry is (neighbors, cell id)
@@ -262,14 +250,11 @@ class Board:
         cells_counts = self.get_emtpy_cell_neighbor_count()
         if len(cells_counts) > 0:
             for cell in cells_counts.keys():
-                self.make_move(cell, player)            # make the move for the player and see if it won
-                if self.is_win(cell, player):
-                    # if a win, set the value as negative 9; no cell can have more than 8 neighbors, so this will
-                    # ensure the cell is at the front of the priority queue (lowest numbers first)
+                # if a win, set the value as negative 9; no cell can have more than 8 neighbors, so this will
+                # ensure the cell is at the front of the priority queue (lowest numbers first)
+                if self.is_game_ending_move(cell):
                     queue.put((-9, cell))
                     continue
-                else:
-                    self.make_move(cell, val=0)         # if not a winning move, make sure to undo move (set back to player 0)
 
                 # multiply filled neighbor count by negative 1 to put most constrained empty cells first
                 # i.e. a cell with only 1 open neighbor is more valuable than one with 8 (no filled neighbors)

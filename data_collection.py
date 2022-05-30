@@ -8,7 +8,7 @@
 import importlib
 import unittest
 
-from games import mcts_vs_mcts, ab_vs_ab
+from games import mcts_vs_mcts, ab_vs_ab, mcts_vs_ab, ab_vs_mcts
 
 import cfg
 
@@ -193,13 +193,17 @@ class MNKDataCollection(unittest.TestCase):
                 cfg.expand_random_chance = random_pct
                 player1_wins, player2_wins, ties = mcts_vs_mcts(iterations, m, n, k)
 
+                p1_pct = int(player1_wins / iterations * 100)
+                p2_pct = int(player2_wins / iterations * 100)
+                tie_pct = int(ties / iterations * 100)
+
                 line = ','.join([str(val) for val in [
                     player1_wins,
                     player2_wins,
                     ties,
-                    int(player1_wins / iterations * 100),
-                    int(player2_wins / iterations * 100),
-                    int(ties / iterations * 100),
+                    p1_pct,
+                    p2_pct,
+                    tie_pct,
                     cfg.max_mcts_loops,
                     cfg.expand_random_chance,
                     m,
@@ -209,7 +213,7 @@ class MNKDataCollection(unittest.TestCase):
                 csv.write(f'{line}\n')
 
                 print(f'\nrandom_pct = {random_pct}\n')
-                print(line)
+                print(f'MCTS (expand rand pct)={random_pct}: p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%')
 
     def test_ab_basic(self):
         '''
@@ -217,9 +221,6 @@ class MNKDataCollection(unittest.TestCase):
         Other tests in this script may vary the params and collect data
         :return:
         '''
-        print('Skipping alpha beta basic test (for now)')
-        return
-
         iterations = cfg.data_collection_loops
         m = 3
         n = 3
@@ -230,19 +231,93 @@ class MNKDataCollection(unittest.TestCase):
             for sim_num in range(1):
                 player1_wins, player2_wins, ties = ab_vs_ab(iterations, m, n, k)
 
+                p1_pct = int(player1_wins / iterations * 100)
+                p2_pct = int(player2_wins / iterations * 100)
+                tie_pct = int(ties / iterations * 100)
+
                 line = ','.join([str(val) for val in [
                     player1_wins,
                     player2_wins,
                     ties,
-                    int(player1_wins / iterations * 100),
-                    int(player2_wins / iterations * 100),
-                    int(ties / iterations * 100),
+                    p1_pct,
+                    p2_pct,
+                    tie_pct,
                     m,
                     n,
                     k]
                                  ])
                 csv.write(f'{line}\n')
-                print(line)
+                print(f'AB vs AB: p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%')
+
+    def test_mcts_vs_ab(self):
+        '''
+        Collect data on the mcts algo vs alpha-beta
+        Other tests in this script may vary the params and collect data
+        :return:
+        '''
+
+        iterations = cfg.data_collection_loops
+        m = 3
+        n = 3
+        k = 3
+
+        with open('data/mcts_vs_ab.csv', 'w') as csv:
+            csv.write(f'p1_wins,p2_wins,ties,p1_pct,p2_pct,tie_pct,m,n,k\n')
+            for sim_num in range(1):
+                player1_wins, player2_wins, ties = mcts_vs_ab(iterations, m, n, k)
+
+                p1_pct = int(player1_wins / iterations * 100)
+                p2_pct = int(player2_wins / iterations * 100)
+                tie_pct = int(ties / iterations * 100)
+
+                line = ','.join([str(val) for val in [
+                    player1_wins,
+                    player2_wins,
+                    ties,
+                    p1_pct,
+                    p2_pct,
+                    tie_pct,
+                    m,
+                    n,
+                    k]
+                                 ])
+                csv.write(f'{line}\n')
+                print(f'MCTS vs AB: p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%')
+
+    def test_ab_vs_mcts(self):
+        '''
+        Collect data on the ab vs mcts
+        Other tests in this script may vary the params and collect data
+        :return:
+        '''
+
+        iterations = cfg.data_collection_loops
+        m = 3
+        n = 3
+        k = 3
+
+        with open('data/ab_vs_mcts.csv', 'w') as csv:
+            csv.write(f'p1_wins,p2_wins,ties,p1_pct,p2_pct,tie_pct,m,n,k\n')
+            for sim_num in range(1):
+                player1_wins, player2_wins, ties = ab_vs_mcts(iterations, m, n, k)
+
+                p1_pct = int(player1_wins / iterations * 100)
+                p2_pct = int(player2_wins / iterations * 100)
+                tie_pct = int(ties / iterations * 100)
+
+                line = ','.join([str(val) for val in [
+                    player1_wins,
+                    player2_wins,
+                    ties,
+                    p1_pct,
+                    p2_pct,
+                    tie_pct,
+                    m,
+                    n,
+                    k]
+                                 ])
+                csv.write(f'{line}\n')
+                print(f'AB vs MCTS: p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%')
 
 if __name__ == '__main__':
     unittest.main()
