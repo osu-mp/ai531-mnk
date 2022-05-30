@@ -37,7 +37,7 @@ class Node:
         """
         Upper confidence bounds applied to trees
         Page 163 in AI book
-        uct = wins / games + C * sqrt(log Parent(n) / n)
+        uct = wins / games + C * sqrt(log(Parent games)/ (this node games))
         :return:
         """
         if self.games == 0:         # avoid divide by zero
@@ -46,14 +46,10 @@ class Node:
         if not self.parent:         # return raw win percentage for root node
             return self.wins / self.games
 
-        # else uct = wins / games + C * sqrt(log n * Parent(n) / n)
         n = self.games  # number of games simulated at this level
-        value = self.wins / n  # exploitation
+        value = self.wins / n                                       # exploitation
         log_parent = math.log(self.parent.games)
-        #value += cfg.uct_const * math.sqrt(math.log(n) * self.parent.get_uct() / n)     # exploration
-        value += cfg.uct_const * math.sqrt(log_parent / n)
-
-        # TODO : is this new algo correct/better?
+        value += cfg.uct_const * math.sqrt(log_parent / n)          # exploration
 
         return value
 
@@ -92,9 +88,6 @@ def mcts_new(board: Board, player):
 
 
 def select_node(node: Node):
-    if not node.board.get_empty_squares():
-        # print('Unable to expand terminal node')
-        return node
 
     # the random policy is significantly worse than uct, sticking with full uct
     # see data/mcts_varying_select_chance.csv for data
@@ -104,7 +97,7 @@ def select_node(node: Node):
     #     node = node.children[rand_child]
     #     return node
 
-    # else select the node with the best uct value
+    # select the node with the best uct value
     while len(node.children) > 0:
         best_uct = -1
         best_nodes = []  # list of all nodes with max uct
