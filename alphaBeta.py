@@ -12,7 +12,7 @@ def save_player(player):
     f = open('cur_player.txt', 'w')
     f.write(str(player))
     f.close()
-# Player retrived from the file    
+# Player retrived from the file
 def get_player():
     f = open('cur_player.txt', 'r')
     player = int(f.readline())
@@ -77,11 +77,22 @@ def bot_move(position: Board, player, algoType):
         start = time.time()
         move = ab_bot(position, player)
         end = time.time()
-        #Reccods time by creating a new file
+        # records time by creating a new file
         with open(ab_time_filename, 'w+') as timeFile_for_ab:
             timeFile_for_ab.write(str(end - start) + '\n')
+
+    # elif algoType == 'mcts':
+    #     start = time.time()
+    #     move = mcts_new(position, player)
+    #     end = time.time()
+    #     # records time by creating a new file
+    #     with open(cfg.mcts_time_filname, 'w+') as fh:
+    #         fh.write(str(end - start) + '\n')
+
     return move
+
 
 """
 Endpoint: Call obj.bot_move(1: position/board, 1/-1 depending on the player you want to go first, always 'ab')
 """
+

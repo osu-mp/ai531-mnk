@@ -22,15 +22,19 @@ class MNKDataCollection(unittest.TestCase):
         Other tests in this script vary the params and collect data
         :return:
         '''
-        iterations = cfg.data_collection_loops
+        iterations = 20# cfg.data_collection_loops
         m = 3
         n = 3
         k = 3
 
         with open('data/mcts.csv', 'w') as csv:
             csv.write(f'player1_wins,player2_wins,ties,player1_pct,p2_pct,tie_pct,mcts_loops,uct_const,m,n,k\n')
-            for sim_num in range(10):
+            for sim_num in range(1):
                 player1_wins, player2_wins, ties = mcts_vs_mcts(iterations, m, n, k)
+
+                p1_pct = int(player1_wins / iterations * 100)
+                p2_pct = int(player2_wins / iterations * 100)
+                tie_pct = int(ties / iterations * 100)
 
                 line = ','.join([str(val) for val in [
                     player1_wins,
@@ -46,7 +50,8 @@ class MNKDataCollection(unittest.TestCase):
                     k]
                                  ])
                 csv.write(f'{line}\n')
-                print(line)
+                print(f'MCTS (default)): p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%%')
+
 
     def test_uct_const(self):
         '''
@@ -69,9 +74,9 @@ class MNKDataCollection(unittest.TestCase):
                     player1_wins,
                     player2_wins,
                     ties,
-                    int(player1_wins / iterations * 100),
-                    int(player2_wins / iterations * 100),
-                    int(ties / iterations * 100),
+                    p1_pct,
+                    p2_pct,
+                    tie_pct,
                     cfg.max_mcts_loops,
                     cfg.uct_const,
                     m,
@@ -122,13 +127,13 @@ class MNKDataCollection(unittest.TestCase):
         Collect game data for varying constants in the algo that selects which child node to select
         :return:
         '''
-        iterations = 20 # cfg.data_collection_loops
+        iterations = cfg.data_collection_loops
         m = 3
         n = 3
         k = 3
 
         with open('data/mcts_varying_select_chance.csv', 'w') as csv:
-            csv.write(f'p1_wins,p2_wins,ties,p1_pct,p2_pct,tie_pct,mcts_loops,random_pct,m,n,k')
+            csv.write(f'p1_wins,p2_wins,ties,p1_pct,p2_pct,tie_pct,mcts_loops,random_pct,m,n,k\n')
             for random_pct in [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1]:
                 cfg.select_random_chance = random_pct
                 player1_wins, player2_wins, ties = mcts_vs_mcts(iterations, m, n, k)
@@ -144,7 +149,7 @@ class MNKDataCollection(unittest.TestCase):
                     p2_pct,
                     tie_pct,
                     cfg.max_mcts_loops,
-                    cfg.expand_random_chance,
+                    cfg.select_random_chance,
                     m,
                     n,
                     k]

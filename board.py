@@ -107,6 +107,34 @@ class Board:
     def get_diagonal_topright(self, r: int, c: int):
         return self.get_diagonal((r, c), (-1, 1)) + [self.board[r][c]] + self.get_diagonal((r, c), (1, -1))
 
+    def check_win(self, pos: int, player: Literal[0, 1, 2]):
+        """
+        Test if the given position wins for the given player. Return True if a win, else false
+        :param pos:
+        :param player:
+        :return:
+        """
+        self.make_move(pos, player)             # simulate the player making the move
+        is_win = self.is_win(pos, player)       # check for win
+        self.make_move(pos, val=0)              # undo move (set square to player 0)
+        return is_win
+
+    def is_game_ending_move(self, pos: int):
+        """
+        Test whether taking the square is a game ending move (if either player wins with that square)
+        :param pos:
+        :return:
+        """
+        game_over = False
+        for player in [1, 2]:
+            self.make_move(pos, player)
+            if self.is_win(pos, player):
+                game_over = True
+                break
+
+        self.make_move(pos, 0)              # be sure to undo move
+        return game_over
+
     def is_win(self, pos: int, val: Literal[0, 1, 2]):
         assert val in [0, 1, 2]
         flag = False

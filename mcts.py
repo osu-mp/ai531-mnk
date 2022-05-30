@@ -37,7 +37,7 @@ class Node:
         """
         Upper confidence bounds applied to trees
         Page 163 in AI book
-        uct = wins / games + C * sqrt(log n * Parent(n) / n)
+        uct = wins / games + C * sqrt(log Parent(n) / n)
         :return:
         """
         if self.games == 0:         # avoid divide by zero
@@ -49,8 +49,9 @@ class Node:
         # else uct = wins / games + C * sqrt(log n * Parent(n) / n)
         n = self.games  # number of games simulated at this level
         value = self.wins / n  # exploitation
+        log_parent = math.log(self.parent.games)
         #value += cfg.uct_const * math.sqrt(math.log(n) * self.parent.get_uct() / n)     # exploration
-        value += cfg.uct_const * math.sqrt(math.log(self.games) / cfg.max_mcts_loops)
+        value += cfg.uct_const * math.sqrt(log_parent / n)
 
         # TODO : is this new algo correct/better?
 
@@ -61,6 +62,8 @@ def mcts_new(board: Board, player):
     # TODO add time tracker?
     loops = 0
     root = Node(board, player, None, None)
+
+    # initialize children as every possible empty square at root node
     for square in board.get_empty_squares():
         node = Node(board, player, root, square)
         root.children.append(node)
@@ -89,6 +92,10 @@ def mcts_new(board: Board, player):
 
 
 def select_node(node: Node):
+    if not node.board.get_empty_squares():
+        # print('Unable to expand terminal node')
+        return node
+
     rand = random.random()
     if rand > cfg.select_random_chance:
         rand_child = random.randrange(len(node.children))
@@ -104,13 +111,28 @@ def select_node(node: Node):
         # else select the node with the best uct value
         while len(node.children) > 0:
             best_uct = -1
+            best_nodes = []  # list of all nodes with max uct
+
             # pick the child node with the highest uct
             for child in node.children:
+                # if either player can win with the square, take it
+                if node.board.is_game_ending_move(child.square):
+                    return child
                 uct = child.get_uct()
                 log(f'UCT of {child.square} = {uct}')
-                if uct > best_uct:
+                if uct > best_uct:          # new max uct found, reset list
                     best_uct = uct
-                    node = child
+                    # node = child
+                    best_nodes = [child]
+                elif uct == best_uct:
+                    best_nodes.append(child)
+
+            if len(best_nodes) == 1:          # if only one best node, return that
+                node = best_nodes[0]
+                # print(f'Single node with best uct: {node.square}')
+            else:                               # else if multiple nodes have the same uct, pick a random one
+                node = best_nodes[random.randrange(len(best_nodes))]
+                # print(f'{len(best_nodes)} best nodes, random picked: {node.square}')
 
     return node
 
@@ -121,6 +143,10 @@ def expand_node(node):
     :param node:
     :return:
     """
+    if not node.board.get_empty_squares(): # node.square and node.board.is_gameover(node.square, node.player):
+        # print('Unable to expand terminal node')
+        return node
+
     # expansion policy: half the time pick a random sqaure, the other half pick an empty square with the most neighbors
     rand = random.random()
     if rand > cfg.expand_random_chance:
@@ -235,7 +261,7 @@ class TestMCTS(unittest.TestCase):
         """
         from games import mcts_vs_mcts          # put import inside inner scope to avoid circular references
 
-        games = 20
+        games = 1
         player1_wins, player2_wins, ties = mcts_vs_mcts(games, 3, 3, 3)
         print(f'Player1 Wins: {player1_wins} ({(int)(player1_wins / games * 100)} %%)')
         print(f'Player2 Wins: {player2_wins} ({(int)(player2_wins / games * 100)} %%)')

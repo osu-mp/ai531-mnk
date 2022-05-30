@@ -39,12 +39,13 @@ def mcts_vs_mcts(n_games: int, m: int, n: int, k: int):
             best_move = mcts_new(board, player)
             board.make_move(best_move, player)
             if board.is_win(best_move, player):
-                print(f'Player {player} wins!')
+                # print only if there is a winner (do not care about ties as much)
+                print(f'Player {player} wins! ({n_game} of {n_games})')
                 if cfg.DEBUG:
                     board.show()
                 break
             log(f'Best move for player {player} is: {best_move}')
-            if cfg.DEBUG:
+            if cfg.show_each_move:
                 board.show()
             player = get_other_player(player)
 
@@ -77,7 +78,8 @@ def ab_vs_ab(n_games: int, m: int, n: int, k: int):
             best_move = bot_move(board,player,'ab')
             board.make_move(best_move, player)
             if board.is_win(best_move, player):
-                print(f'Player {player} wins! ({n_game} of {n_games}')
+                # print only if there is a winner (do not care about ties as much)
+                print(f'Player {player} wins! ({n_game} of {n_games})')
                 if cfg.DEBUG:
                     board.show()
                 break
