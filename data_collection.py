@@ -5,6 +5,7 @@
 # Joe Nguyen
 # Matthew Pacey
 
+import importlib
 import unittest
 
 from games import mcts_vs_mcts, ab_vs_ab
@@ -16,13 +17,21 @@ class MNKDataCollection(unittest.TestCase):
     Performance monitoring and parameter refinement for mnk bots
     '''
 
+    def setUp(self):
+        '''
+        Reset some of the mcts constants
+        :return:
+        '''
+        cfg.reset()
+
+
     def test_mcts_consts(self):
         '''
         Collect data on the mcts algo as configured in cfg.py
         Other tests in this script vary the params and collect data
         :return:
         '''
-        iterations = 20# cfg.data_collection_loops
+        iterations = cfg.data_collection_loops
         m = 3
         n = 3
         k = 3
@@ -40,9 +49,9 @@ class MNKDataCollection(unittest.TestCase):
                     player1_wins,
                     player2_wins,
                     ties,
-                    int(player1_wins / iterations * 100),
-                    int(player2_wins / iterations * 100),
-                    int(ties / iterations * 100),
+                    p1_pct,
+                    p2_pct,
+                    tie_pct,
                     cfg.max_mcts_loops,
                     cfg.uct_const,
                     m,
@@ -50,7 +59,7 @@ class MNKDataCollection(unittest.TestCase):
                     k]
                                  ])
                 csv.write(f'{line}\n')
-                print(f'MCTS (default)): p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%%')
+                print(f'MCTS (default): p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%')
 
 
     def test_uct_const(self):
@@ -66,9 +75,13 @@ class MNKDataCollection(unittest.TestCase):
 
         with open('data/mcts_varying_uct.csv', 'w') as csv:
             csv.write(f'p1_wins,p2_wins,ties,p1_pct,p2_pct,tie_pct,mcts_loops,uct_const,m,n,k\n')
-            for uct_val in [1., 1.05, 1.1, 1.15, 1.2, 1.4, 2., 3, 4]:
+            for uct_val in [1., 1.1, 1.2, 1.4, 2., 3]:
                 cfg.uct_const = uct_val
                 player1_wins, player2_wins, ties = mcts_vs_mcts(iterations, m, n, k)
+
+                p1_pct = int(player1_wins / iterations * 100)
+                p2_pct = int(player2_wins / iterations * 100)
+                tie_pct = int(ties / iterations * 100)
 
                 line = ','.join([str(val) for val in [
                     player1_wins,
@@ -85,8 +98,7 @@ class MNKDataCollection(unittest.TestCase):
                 ])
                 csv.write(f'{line}\n')
 
-                print(f'\nuct const = {uct_val}\n')
-                print(line)
+                print(f'MCTS (uct const = {uct_val}): p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%')
 
     def test_mcts_loops(self):
         '''
@@ -104,13 +116,17 @@ class MNKDataCollection(unittest.TestCase):
                 cfg.max_mcts_loops = loop_count
                 player1_wins, player2_wins, ties = mcts_vs_mcts(iterations, m, n, k)
 
+                p1_pct = int(player1_wins / iterations * 100)
+                p2_pct = int(player2_wins / iterations * 100)
+                tie_pct = int(ties / iterations * 100)
+
                 line = ','.join([str(val) for val in [
                     player1_wins,
                     player2_wins,
                     ties,
-                    int(player1_wins / iterations * 100),
-                    int(player2_wins / iterations * 100),
-                    int(ties / iterations * 100),
+                    p1_pct,
+                    p2_pct,
+                    tie_pct,
                     cfg.max_mcts_loops,
                     cfg.uct_const,
                     m,
@@ -119,14 +135,16 @@ class MNKDataCollection(unittest.TestCase):
                 ])
                 csv.write(f'{line}\n')
 
-                print(f'\nloop count = {loop_count}\n')
-                print(line)
+                print(f'MCTS (loop count = {loop_count}): p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%')
 
     def test_selection_policy(self):
         '''
         Collect game data for varying constants in the algo that selects which child node to select
         :return:
         '''
+        print('Skipping selection data collection, policy is significantly better than random')
+        return
+
         iterations = cfg.data_collection_loops
         m = 3
         n = 3
@@ -157,7 +175,7 @@ class MNKDataCollection(unittest.TestCase):
                 csv.write(f'{line}\n')
 
                 print(f'\nrandom_pct = {random_pct}\n')
-                print(f'MCTS (selection ratio={random_pct}: p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%%')
+                print(f'MCTS (selection ratio={random_pct}: p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%')
 
     def test_expansion_policy(self):
         '''
@@ -199,6 +217,9 @@ class MNKDataCollection(unittest.TestCase):
         Other tests in this script may vary the params and collect data
         :return:
         '''
+        print('Skipping alpha beta basic test (for now)')
+        return
+
         iterations = cfg.data_collection_loops
         m = 3
         n = 3

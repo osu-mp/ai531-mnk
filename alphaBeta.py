@@ -62,7 +62,7 @@ def ab_bot(position:Board, player):
         clone = deepcopy(position)
         clone.make_move(move, player)
         val = alphaBeta(clone, 4, -2, 2, get_other_player(player), move)
-        print("move", move, "causes player", players[val], "to win")
+        # print("move", move, "causes player", players[val], "to win")
         if val > a:
             a = val
             moveChoices = [move]

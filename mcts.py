@@ -96,43 +96,39 @@ def select_node(node: Node):
         # print('Unable to expand terminal node')
         return node
 
-    rand = random.random()
-    if rand > cfg.select_random_chance:
-        rand_child = random.randrange(len(node.children))
-        node = node.children[rand_child]
+    # the random policy is significantly worse than uct, sticking with full uct
+    # see data/mcts_varying_select_chance.csv for data
+    # rand = random.random()
+    # if rand > cfg.select_random_chance:
+    #     rand_child = random.randrange(len(node.children))
+    #     node = node.children[rand_child]
+    #     return node
 
-    else:
-    # if any nodes are unvisited, try them first
-    # for child in node.children:
-    #     if child.games == 0:
-    #         log(f'Returning unvisited node: {child.square}')
-    #         return child
+    # else select the node with the best uct value
+    while len(node.children) > 0:
+        best_uct = -1
+        best_nodes = []  # list of all nodes with max uct
 
-        # else select the node with the best uct value
-        while len(node.children) > 0:
-            best_uct = -1
-            best_nodes = []  # list of all nodes with max uct
+        # pick the child node with the highest uct
+        for child in node.children:
+            # if either player can win with the square, take it
+            if node.board.is_game_ending_move(child.square):
+                return child
+            uct = child.get_uct()
+            log(f'UCT of {child.square} = {uct}')
+            if uct > best_uct:          # new max uct found, reset list
+                best_uct = uct
+                # node = child
+                best_nodes = [child]
+            elif uct == best_uct:
+                best_nodes.append(child)
 
-            # pick the child node with the highest uct
-            for child in node.children:
-                # if either player can win with the square, take it
-                if node.board.is_game_ending_move(child.square):
-                    return child
-                uct = child.get_uct()
-                log(f'UCT of {child.square} = {uct}')
-                if uct > best_uct:          # new max uct found, reset list
-                    best_uct = uct
-                    # node = child
-                    best_nodes = [child]
-                elif uct == best_uct:
-                    best_nodes.append(child)
-
-            if len(best_nodes) == 1:          # if only one best node, return that
-                node = best_nodes[0]
-                # print(f'Single node with best uct: {node.square}')
-            else:                               # else if multiple nodes have the same uct, pick a random one
-                node = best_nodes[random.randrange(len(best_nodes))]
-                # print(f'{len(best_nodes)} best nodes, random picked: {node.square}')
+        if len(best_nodes) == 1:          # if only one best node, return that
+            node = best_nodes[0]
+            # print(f'Single node with best uct: {node.square}')
+        else:                               # else if multiple nodes have the same uct, pick a random one
+            node = best_nodes[random.randrange(len(best_nodes))]
+            # print(f'{len(best_nodes)} best nodes, random picked: {node.square}')
 
     return node
 
