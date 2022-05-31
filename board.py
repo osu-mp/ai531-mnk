@@ -1,6 +1,6 @@
 from copy import deepcopy
-from typing import Tuple, Literal
-from termcolor import colored
+from typing import Tuple#, Literal
+# from termcolor import colored             # paceym: commented out to run on flip
 import numpy as np
 import random
 
@@ -36,7 +36,7 @@ class Board:
             s += '\n'
         return s
 
-    def is_gameover(self, pos: int, val: Literal[0, 1, 2]):
+    def is_gameover(self, pos: int, val): # paceym: commented out to run on flip Literal[0, 1, 2]):
         self.is_win(pos, val)
         if len(self.get_empty_squares()) == 0:
             self.gameover = True
@@ -76,7 +76,7 @@ class Board:
     def is_move_OK(self, pos: int):
         return self.is_within_board_pos(pos) and self.is_empty_pos(pos)
 
-    def make_move(self, pos: int, val: Literal[0, 1, 2]):
+    def make_move(self, pos: int, val):#: Literal[0, 1, 2]):
         """
 
         :param pos:
@@ -123,7 +123,7 @@ class Board:
         self.make_move(pos, 0)              # be sure to undo move
         return game_over
 
-    def is_win(self, pos: int, val: Literal[0, 1, 2]):
+    def is_win(self, pos: int, val):# Literal[0, 1, 2]):
         assert val in [0, 1, 2]
         flag = False
         x, y = self.pos_to_xy(pos)

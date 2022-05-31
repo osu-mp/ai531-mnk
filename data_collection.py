@@ -8,7 +8,9 @@
 import importlib
 import unittest
 
-from games import mcts_vs_mcts, ab_vs_ab, mcts_vs_ab, ab_vs_mcts
+from alphaBeta import ab_bot
+from games import mcts_vs_mcts, ab_vs_ab, mcts_vs_ab, ab_vs_mcts, bot_vs_bot
+from mcts import mcts_new
 
 import cfg
 
@@ -31,6 +33,8 @@ class MNKDataCollection(unittest.TestCase):
         Other tests in this script vary the params and collect data
         :return:
         '''
+        print('Skipping mcts consts (uncomment to manually run)')
+        return
         iterations = cfg.data_collection_loops
         m = 3
         n = 3
@@ -68,6 +72,8 @@ class MNKDataCollection(unittest.TestCase):
         Generic algo default is usually square root of 2
         :return:
         '''
+        print('Skipping mcts uct consts (uncomment to manually run)')
+        return
         iterations = cfg.data_collection_loops
         m = 3
         n = 3
@@ -105,6 +111,8 @@ class MNKDataCollection(unittest.TestCase):
         Collect game data for varying loop count in the mcts main loop
         :return:
         '''
+        print('Skipping mcts loops (uncomment to manually run)')
+        return
         iterations = cfg.data_collection_loops
         m = 3
         n = 3
@@ -182,6 +190,8 @@ class MNKDataCollection(unittest.TestCase):
         Collect game data for varying constants in the algo that selects which square to expand from an unexplored node
         :return:
         '''
+        print('Skipping mcts expansion (uncomment to manually run)')
+        return
         iterations = cfg.data_collection_loops
         m = 3
         n = 3
@@ -221,6 +231,8 @@ class MNKDataCollection(unittest.TestCase):
         Other tests in this script may vary the params and collect data
         :return:
         '''
+        print('Skipping ab basic (uncomment to manually run)')
+        return
         iterations = cfg.data_collection_loops
         m = 3
         n = 3
@@ -255,7 +267,8 @@ class MNKDataCollection(unittest.TestCase):
         Other tests in this script may vary the params and collect data
         :return:
         '''
-
+        print('Skipping mcts vs ab (uncomment to manually run)')
+        return
         iterations = cfg.data_collection_loops
         m = 3
         n = 3
@@ -290,7 +303,8 @@ class MNKDataCollection(unittest.TestCase):
         Other tests in this script may vary the params and collect data
         :return:
         '''
-
+        print('Skipping ab vs mcts (uncomment to manually run)')
+        return
         iterations = cfg.data_collection_loops
         m = 3
         n = 3
@@ -325,36 +339,40 @@ class MNKDataCollection(unittest.TestCase):
         Collect data for various board sizes
         :return:
         '''
+        print('Collecting report data')
         iterations = cfg.data_collection_loops
 
         # start log new each time, only add headers
         with open('data/report_numbers.csv', 'w') as csv:
-            csv.write(f'm,n,k,p1,p2,p1_pct,p2_pct,tie_pct,games\n')
+            csv.write(f'm,n,k,p1,p2,p1_pct,p2_pct,tie_pct,games,p1_avg_runtime,p2_avg_runtime\n')
 
-        for m in range(3, 10):             # test for boards from 3x3 to 9x9
-            for k in range(3, 7):           # test for board to require 3 to 6 cells in a row to win
+
+        for m in range(3, 9):             # test for boards from 3x3 to 9x9
+            for k in range(3, 6):           # test for board to require 3 to 6 cells in a row to win
                 if k > m:                   # skip cases where board cannot support winning condition
-                    pass
+                    continue
 
-                # TODO add 4 game configs
-                # TODO collect runtime for each opponent
-                '''
-                line = ','.join([str(val) for val in [
-                    player1_wins,
-                    player2_wins,
-                    ties,
-                    p1_pct,
-                    p2_pct,
-                    tie_pct,
-                    m,
-                    n,
-                    k]
-                                 ])
-            
-                
-                # append each entry during loop rather than all at end
-                with open('data/report_numbers.csv', 'w+') as csv:
-                    csv.write(line)
-                '''
+                print(f'Running {iterations} for each matchup with m={m}, k={k}')
+                # mcts vs mcts
+                p1_win_pct, p2_win_pct, tie_pct, p1_runtime, p2_runtime = bot_vs_bot(mcts_new, mcts_new, iterations, m, m, k)
+                with open('data/report_numbers.csv', 'a') as csv:       # append to file as sim progresses
+                    csv.write(f'{m},{m},{k},mcts,mcts,{p1_win_pct},{p2_win_pct},{tie_pct},{iterations},{p1_runtime},{p2_runtime}\n')
+
+                # mcts vs ab
+                p1_win_pct, p2_win_pct, tie_pct, p1_runtime, p2_runtime = bot_vs_bot(mcts_new, ab_bot, iterations, m, m, k)
+                with open('data/report_numbers.csv', 'a') as csv:  # append to file as sim progresses
+                    csv.write(f'{m},{m},{k},mcts,ab,{p1_win_pct},{p2_win_pct},{tie_pct},{iterations},{p1_runtime},{p2_runtime}\n')
+
+                # ab vs ab
+                p1_win_pct, p2_win_pct, tie_pct, p1_runtime, p2_runtime = bot_vs_bot(ab_bot, ab_bot, iterations, m, m, k)
+                with open('data/report_numbers.csv', 'a') as csv:  # append to file as sim progresses
+                    csv.write(f'{m},{m},{k},ab,ab,{p1_win_pct},{p2_win_pct},{tie_pct},{iterations},{p1_runtime},{p2_runtime}\n')
+
+                # ab vs mcts
+                p1_win_pct, p2_win_pct, tie_pct, p1_runtime, p2_runtime = bot_vs_bot(ab_bot, mcts_new, iterations, m, m, k)
+                with open('data/report_numbers.csv', 'a') as csv:  # append to file as sim progresses
+                    csv.write(f'{m},{m},{k},ab,mcts,{p1_win_pct},{p2_win_pct},{tie_pct},{iterations},{p1_runtime},{p2_runtime}\n')
+
+
 if __name__ == '__main__':
     unittest.main()

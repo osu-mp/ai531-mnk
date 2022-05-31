@@ -248,14 +248,16 @@ class TestMCTS(unittest.TestCase):
         Work in progress test for mcts
         :return:
         """
-        from games import mcts_vs_mcts          # put import inside inner scope to avoid circular references
+        from games import mcts_vs_mcts, bot_vs_bot          # put import inside inner scope to avoid circular references
 
-        games = 1
-        player1_wins, player2_wins, ties = mcts_vs_mcts(games, 3, 3, 3)
-        print(f'Player1 Wins: {player1_wins} ({(int)(player1_wins / games * 100)} %%)')
-        print(f'Player2 Wins: {player2_wins} ({(int)(player2_wins / games * 100)} %%)')
-        print(f'        Ties: {ties} ({(int)(ties / games * 100)} %%)')
-        # self.assertTrue(player2_wins == 0, 'Player 2 should never win if strategy is correct')
+        games = 5
+
+        p1_win_pct, p2_win_pct, tie_pct, p1_runtime, p2_runtime = bot_vs_bot(mcts_new, mcts_new, games, 3, 3, 3)
+        print(f'Player1 Won : {p1_win_pct}%')
+        print(f'Player2 Won : {p2_win_pct}%')
+        print(f'Ties        : {tie_pct}%')
+        print(f'Player1 Avg Time/Move: {p1_runtime}')
+        print(f'Player2 Avg Time/Move: {p2_runtime}')
 
 
 if __name__ == '__main__':
