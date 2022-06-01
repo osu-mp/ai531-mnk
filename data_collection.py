@@ -353,22 +353,26 @@ class MNKDataCollection(unittest.TestCase):
                     continue
 
                 print(f'Running {iterations} for each matchup with m={m}, k={k}')
-                # mcts vs mcts
-                p1_win_pct, p2_win_pct, tie_pct, p1_runtime, p2_runtime = bot_vs_bot(mcts_new, mcts_new, iterations, m, m, k)
-                with open('data/report_numbers.csv', 'a') as csv:       # append to file as sim progresses
-                    csv.write(f'{m},{m},{k},mcts,mcts,{p1_win_pct},{p2_win_pct},{tie_pct},{iterations},{p1_runtime},{p2_runtime}\n')
+                # # mcts vs mcts
+                # print('mcts vs mcts')
+                # p1_win_pct, p2_win_pct, tie_pct, p1_runtime, p2_runtime = bot_vs_bot(mcts_new, mcts_new, iterations, m, m, k)
+                # with open('data/report_numbers.csv', 'a') as csv:       # append to file as sim progresses
+                #     csv.write(f'{m},{m},{k},mcts,mcts,{p1_win_pct},{p2_win_pct},{tie_pct},{iterations},{p1_runtime},{p2_runtime}\n')
 
-                # mcts vs ab
-                p1_win_pct, p2_win_pct, tie_pct, p1_runtime, p2_runtime = bot_vs_bot(mcts_new, ab_bot, iterations, m, m, k)
-                with open('data/report_numbers.csv', 'a') as csv:  # append to file as sim progresses
-                    csv.write(f'{m},{m},{k},mcts,ab,{p1_win_pct},{p2_win_pct},{tie_pct},{iterations},{p1_runtime},{p2_runtime}\n')
+                # # mcts vs ab
+                # print('mcts vs ab')
+                # p1_win_pct, p2_win_pct, tie_pct, p1_runtime, p2_runtime = bot_vs_bot(mcts_new, ab_bot, iterations, m, m, k)
+                # with open('data/report_numbers.csv', 'a') as csv:  # append to file as sim progresses
+                #     csv.write(f'{m},{m},{k},mcts,ab,{p1_win_pct},{p2_win_pct},{tie_pct},{iterations},{p1_runtime},{p2_runtime}\n')
 
                 # ab vs ab
+                print('ab vs ab')
                 p1_win_pct, p2_win_pct, tie_pct, p1_runtime, p2_runtime = bot_vs_bot(ab_bot, ab_bot, iterations, m, m, k)
                 with open('data/report_numbers.csv', 'a') as csv:  # append to file as sim progresses
                     csv.write(f'{m},{m},{k},ab,ab,{p1_win_pct},{p2_win_pct},{tie_pct},{iterations},{p1_runtime},{p2_runtime}\n')
 
                 # ab vs mcts
+                print('ab vs mcts')
                 p1_win_pct, p2_win_pct, tie_pct, p1_runtime, p2_runtime = bot_vs_bot(ab_bot, mcts_new, iterations, m, m, k)
                 with open('data/report_numbers.csv', 'a') as csv:  # append to file as sim progresses
                     csv.write(f'{m},{m},{k},ab,mcts,{p1_win_pct},{p2_win_pct},{tie_pct},{iterations},{p1_runtime},{p2_runtime}\n')
