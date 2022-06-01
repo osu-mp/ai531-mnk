@@ -6,11 +6,10 @@
 # Matthew Pacey
 
 from collections import defaultdict
-import time
 
-from board import Board
+from tqdm import tqdm
+
 from mcts import mcts_new
-from util import get_other_player, log
 from alphaBeta import *
 
 import cfg
@@ -69,7 +68,7 @@ def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int, filename=
         2: p2_func
     }
 
-    for n_game in range(n_games):
+    for n_game in tqdm(range(n_games)):
         player = 1
         board = Board((m, n), k)
         while len(board.get_empty_squares()) > 0:
@@ -139,7 +138,7 @@ def mcts_vs_mcts(n_games: int, m: int, n: int, k: int):
     runtimes = defaultdict(float)                   # total runtime for each player (cumulative for all games)
     moves = defaultdict(int)                        # total number of moves for each player (cumulative for all games)
 
-    for n_game in range(n_games):
+    for n_game in tqdm(range(n_games)):
         player = 1
         board = Board((m, n), k)
         while len(board.get_empty_squares()) > 0:
@@ -185,7 +184,7 @@ def ab_vs_ab(n_games: int, m: int, n: int, k: int):
     player2_wins = 0
     ties = 0
 
-    for n_game in range(n_games):
+    for n_game in tqdm(range(n_games)):
         player = 1
         board = Board((m, n), k)
         while len(board.get_empty_squares()) > 0:
@@ -222,7 +221,7 @@ def mcts_vs_ab(n_games: int, m: int, n: int, k: int):
     player2_wins = 0
     ties = 0
 
-    for n_game in range(n_games):
+    for n_game in tqdm(range(n_games)):
         player = 1
         board = Board((m, n), k)
         while len(board.get_empty_squares()) > 0:
@@ -264,7 +263,7 @@ def ab_vs_mcts(n_games: int, m: int, n: int, k: int):
     player2_wins = 0
     ties = 0
 
-    for n_game in range(n_games):
+    for n_game in tqdm(range(n_games)):
         player = 1
         board = Board((m, n), k)
         while len(board.get_empty_squares()) > 0:

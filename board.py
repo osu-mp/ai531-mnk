@@ -43,7 +43,7 @@ class Board:
             self.gameover = True
         return self.gameover
 
-    def pos_to_cell_id(self, x: int, y: int):
+    def xy_to_pos(self, x: int, y: int):
         return x * self.size[1] + y
     #
     # def get_empty_squares(self):
@@ -213,7 +213,7 @@ class Board:
 
             for j in range(self.size[1]):
                 square = self.board[i][j]
-                cell_id = self.pos_to_cell_id(i, j)
+                cell_id = self.xy_to_pos(i, j)
                 # print(f'{i=}, {j=}, {cell_id=}')
                 piece = [str(cell_id), 'X', 'O']
                 s += colored(str('{0:^3}'.format(piece[square])), colors[square])
@@ -256,6 +256,7 @@ class Board:
         """
         queue = PriorityQueue()
         cells_counts = self.get_emtpy_cell_neighbor_count()
+        # print(f'{cells_counts}')
         if len(cells_counts) > 0:
             for cell in cells_counts.keys():
                 # if a win, set the value as negative 9; no cell can have more than 8 neighbors, so this will
@@ -437,18 +438,20 @@ class TestBoard(unittest.TestCase):
         :return:
         """
         board = Board((3, 3), 3)
-
         board.make_move(0, 1)
         board.make_move(1, 1)
         board.make_move(3, 1)
+        board.show()
         queue = board.get_emtpy_cell_priority_queue(player=1)
         best = queue.get()
+        # print(f'{best=}')
         # with cells 0, 1, and 3 taken this means that cell 4 is the best since it has 3 occupied neighbors
         self.assertEqual(best[1], 2)
 
         # once cells 4 and 6 are taken, cell 7 is the best (3 neighbors)
         board.make_move(4, 1)
         board.make_move(6, 1)
+        board.show()
         queue = board.get_emtpy_cell_priority_queue(player=1)
         best = queue.get()
         # with cells 0, 1, and 3 taken this means that cell 4 is the best since it has 3 occupied neighbors
@@ -479,9 +482,11 @@ class TestBoard(unittest.TestCase):
     def test_empty_cells(self):
         b = Board((4, 3), 3)
         b.make_move(2, 1)
-        print('print')
-        b.show()
-        print(b.get_empty_squares())
+        empty_squares = b.get_empty_squares()
+        self.assertEqual(empty_squares, [0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+        # print('print')
+        # b.show()
+        # print(b.get_empty_squares())
         # print(b)
 
 
