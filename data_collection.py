@@ -377,7 +377,7 @@ class MNKDataCollection(unittest.TestCase):
         :return:
         '''
         print('Collecting report data')
-        iterations = 50#cfg.data_collection_loops
+        iterations = 25#cfg.data_collection_loops
         m = 4
         n = 4
         k = 3
@@ -398,16 +398,6 @@ class MNKDataCollection(unittest.TestCase):
 
             print(f'Running {iterations} for each matchup with p1 loops={max_loops[1]}, p2 loops={max_loops[2]}')
             bot_vs_bot(mcts_new, mcts_new, iterations, m, m, k, filename, max_loops)
-
-            # mcts vs ab
-            # bot_vs_bot(mcts_new, ab_bot, iterations, m, m, k, filename)
-
-            # ab vs ab
-            # bot_vs_bot(ab_bot, ab_bot, iterations, m, m, k, filename)
-
-            # ab vs mcts
-            # bot_vs_bot(ab_bot, mcts_new, iterations, m, m, k, filename)
-
 
 if __name__ == '__main__':
     unittest.main()
