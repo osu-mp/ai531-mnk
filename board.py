@@ -444,7 +444,7 @@ class TestBoard(unittest.TestCase):
         queue = board.get_emtpy_cell_priority_queue(player=1)
         best = queue.get()
         # with cells 0, 1, and 3 taken this means that cell 4 is the best since it has 3 occupied neighbors
-        self.assertEqual(best[1], 4)
+        self.assertEqual(best[1], 2)
 
         # once cells 4 and 6 are taken, cell 7 is the best (3 neighbors)
         board.make_move(4, 1)
@@ -452,7 +452,7 @@ class TestBoard(unittest.TestCase):
         queue = board.get_emtpy_cell_priority_queue(player=1)
         best = queue.get()
         # with cells 0, 1, and 3 taken this means that cell 4 is the best since it has 3 occupied neighbors
-        self.assertEqual(best[1], 7)
+        self.assertEqual(best[1], 2)
 
     def test_get_emtpy_cell_priority_queue_winning_move(self):
         """
