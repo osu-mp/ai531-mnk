@@ -1,6 +1,6 @@
 from copy import deepcopy
-from typing import Tuple#, Literal
-# from termcolor import colored             # paceym: commented out to run on flip
+from typing import Tuple  # , Literal
+from termcolor import colored             # paceym: commented out to run on flip
 import numpy as np
 import random
 
@@ -19,6 +19,7 @@ class Board:
             self.board = deepcopy(board)
         else:
             self.board = np.zeros(self.size, dtype=int)
+        self.board_cell = np.arange(self.size[0] * self.size[1]).reshape(self.size)
 
     def get_diagonal(self, coord: Tuple[int, int], vec: Tuple[int, int]):
         res = []
@@ -36,24 +37,31 @@ class Board:
             s += '\n'
         return s
 
-    def is_gameover(self, pos: int, val): # paceym: commented out to run on flip Literal[0, 1, 2]):
+    def is_gameover(self, pos: int, val):  # paceym: commented out to run on flip Literal[0, 1, 2]):
         self.is_win(pos, val)
         if len(self.get_empty_squares()) == 0:
             self.gameover = True
         return self.gameover
 
+    def pos_to_cell_id(self, x: int, y: int):
+        return x * self.size[1] + y
+    #
+    # def get_empty_squares(self):
+    #     """
+    #     Return indices of all empty squares
+    #     :return:
+    #     """
+    #     empty_squares = []
+    #     for i in range(self.size[0]):
+    #         for j in range(self.size[1]):
+    #             if self.board[i][j] == 0:
+    #                 # size is a tuple m,n so use the m-index to get a unique id for each square
+    #                 cell_id = self.pos_to_cell_id(i, j)
+    #                 empty_squares += [cell_id]
+    #     return empty_squares
+
     def get_empty_squares(self):
-        """
-        Return indices of all empty squares
-        :return:
-        """
-        empty_squares = []
-        for i in range(self.size[0]):
-            for j in range(self.size[1]):
-                if self.board[i][j] == 0:
-                    # size is a tuple m,n so use the m-index to get a unique id for each square
-                    empty_squares += [i * self.size[0] + j]
-        return empty_squares
+        return list(self.board_cell[self.board == 0])
 
     def get_random_empty_square(self):
         # of the empty cells, return a randomly selected one
@@ -76,7 +84,7 @@ class Board:
     def is_move_OK(self, pos: int):
         return self.is_within_board_pos(pos) and self.is_empty_pos(pos)
 
-    def make_move(self, pos: int, val):#: Literal[0, 1, 2]):
+    def make_move(self, pos: int, val):  #: Literal[0, 1, 2]):
         """
 
         :param pos:
@@ -120,10 +128,10 @@ class Board:
                 game_over = True
                 break
 
-        self.make_move(pos, 0)              # be sure to undo move
+        self.make_move(pos, 0)  # be sure to undo move
         return game_over
 
-    def is_win(self, pos: int, val):# Literal[0, 1, 2]):
+    def is_win(self, pos: int, val):  # Literal[0, 1, 2]):
         assert val in [0, 1, 2]
         flag = False
         x, y = self.pos_to_xy(pos)
@@ -184,7 +192,7 @@ class Board:
         # if the board is full, it's not a tie and the other player won, that is a loss
         return self.winner != player
 
-    def show(self, show_ids=False ):
+    def show(self, show_ids=False):
         s = ''
         colors = ['white', 'red', 'blue']
 
@@ -205,7 +213,7 @@ class Board:
 
             for j in range(self.size[1]):
                 square = self.board[i][j]
-                cell_id = i * self.size[1] + j
+                cell_id = self.pos_to_cell_id(i, j)
                 # print(f'{i=}, {j=}, {cell_id=}')
                 piece = [str(cell_id), 'X', 'O']
                 s += colored(str('{0:^3}'.format(piece[square])), colors[square])
@@ -409,9 +417,9 @@ class TestBoard(unittest.TestCase):
         """
         board = Board((3, 3), 3)
 
-        neighbors = 0                       # cell 4 starts with 0 occupied neighbors (board is empty)
+        neighbors = 0  # cell 4 starts with 0 occupied neighbors (board is empty)
         for cell in range(9):
-            if cell == 4:                   # do not occupy cell 4
+            if cell == 4:  # do not occupy cell 4
                 continue
             board.make_move(cell, 1)
             neighbors += 1
@@ -420,8 +428,8 @@ class TestBoard(unittest.TestCase):
             # print(f'Take cell {cell}')            # DEBUG
             # board.show()
             # print(neighbor_dict)
-            self.assertEqual(neighbor_dict[4], neighbors)       # after a new cell taken, ensure cell 4 (middle) neighbor count increased
-
+            self.assertEqual(neighbor_dict[4],
+                             neighbors)  # after a new cell taken, ensure cell 4 (middle) neighbor count increased
 
     def test_get_emtpy_cell_priority_queue(self):
         """
@@ -468,6 +476,15 @@ class TestBoard(unittest.TestCase):
         # with cells 0, 1, and 3 taken this means that cell 4 is the best since it has 3 occupied neighbors
         self.assertEqual(best[1], 8)
 
+    def test_empty_cells(self):
+        b = Board((4, 3), 3)
+        b.make_move(2, 1)
+        print('print')
+        b.show()
+        print(b.get_empty_squares())
+        # print(b)
+
 
 if __name__ == '__main__':
     unittest.main()
+    # test_empty_cells()
