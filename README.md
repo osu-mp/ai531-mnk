@@ -4,21 +4,10 @@ m,n,k game with MCTS
 MCTS search to terminal nodes
 
 Notes 5/18/22
-TODO
--minimax/alpha beta: Wadood 
--data collection: Matthew
--two agents or 1 vs. human?
--mcts vs mcts, human vs. minimax, human vs mcts, mcts vs mini, mini vs mcts
--bound search by some criteria: time or nodes? 
--implement mcts and minimax, then play against human: state who goes first [we can count number of seconds each algo takes to pick a move] (record cumulative time of each bot over each game)
 
-WIP:
--mcts: Matthew & Joe
---mcts policy: Matthew & Joe
-
-DONE?
--board
-
+TODO: 
+ab breakout
+finalize data
 clarify: what bounds are we setting
   k <= m || k <= n
   max of m & n = 10, k=5?
@@ -31,3 +20,12 @@ clarify: what bounds are we setting
   9,9,5
   10,10,5
 -othello for minimax?
+
+
+bar chart cols: p1, p2, tie
+
+2 graphs: p1=mcts,p2
+
+target criteria: runtime, win pct
+
+y-axis: difficulty: m,n,k
