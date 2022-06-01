@@ -16,7 +16,8 @@ class Board:
         self.gameover = False
         self.winner = 0
         if board is not None:
-            self.board = deepcopy(board)
+            # self.board = deepcopy(board)
+            self.board = np.array(board)
         else:
             self.board = np.zeros(self.size, dtype=int)
         self.board_cell = np.arange(self.size[0] * self.size[1]).reshape(self.size)
@@ -39,12 +40,16 @@ class Board:
 
     def is_gameover(self, pos: int, val):  # paceym: commented out to run on flip Literal[0, 1, 2]):
         self.is_win(pos, val)
+        if self.gameover:
+            return True
+
         if len(self.get_empty_squares()) == 0:
             self.gameover = True
         return self.gameover
 
     def xy_to_pos(self, x: int, y: int):
         return x * self.size[1] + y
+
     #
     # def get_empty_squares(self):
     #     """
@@ -147,19 +152,17 @@ class Board:
 
         player = ['.', 'X', 'O']  # converting -1, 1, 0 to O, X, .
         if val == 1 or val == 2:
-            five_pieces = player[val] * self.k
+            k_pieces = player[val] * self.k
         else:
-            five_pieces = '#' * self.k
-        # print(f'{five_pieces=}')
+            k_pieces = '#' * self.k
 
         for line in lines:
             y = ''
             for elem in line:
                 y += player[elem]
-                if five_pieces in y:
+                if k_pieces in y:
                     flag = True
                     break
-            # print(f'{c=}')
 
         if flag:
             self.gameover = True
