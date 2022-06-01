@@ -46,7 +46,7 @@ class Node:
         if not self.parent:         # return raw win percentage for root node
             return self.wins / self.games
 
-        n = self.games  # number of games simulated at this level
+        n = self.games              # number of games simulated at this level
         value = self.wins / n                                       # exploitation
         log_parent = math.log(self.parent.games)
         value += cfg.uct_const * math.sqrt(log_parent / n)          # exploration
@@ -55,7 +55,12 @@ class Node:
 
 
 def mcts_new(board: Board, player):
-    # TODO add time tracker?
+    """
+    Main Monte Carlo Tree Search algo
+    :param board:
+    :param player:
+    :return: best move given current board
+    """
     loops = 0
     root = Node(board, player, None, None)
 
@@ -68,9 +73,9 @@ def mcts_new(board: Board, player):
 
     while loops < cfg.max_mcts_loops:
         loops += 1
+
         # selection
         node = select_node(root)
-        # print(f'Selected node at square: {node.square}')
 
         # expansion
         leaf = expand_node(node)
@@ -82,22 +87,18 @@ def mcts_new(board: Board, player):
         # backpropagation
         back_propagate(leaf, result)
 
-    best_node = select_node(root)
+    best_node = select_node(root)           # after running as long as allowed, return the best node from root
     log(f'Best node of current root: {best_node.square}')
     return best_node.square
 
 
 def select_node(node: Node):
+    """
+    Select the node with the best uct value
+    :param node:
+    :return:
+    """
 
-    # the random policy is significantly worse than uct, sticking with full uct
-    # see data/mcts_varying_select_chance.csv for data
-    # rand = random.random()
-    # if rand > cfg.select_random_chance:
-    #     rand_child = random.randrange(len(node.children))
-    #     node = node.children[rand_child]
-    #     return node
-
-    # select the node with the best uct value
     while len(node.children) > 0:
         best_uct = -1
         best_nodes = []  # list of all nodes with max uct
@@ -123,6 +124,7 @@ def select_node(node: Node):
             node = best_nodes[random.randrange(len(best_nodes))]
             # print(f'{len(best_nodes)} best nodes, random picked: {node.square}')
 
+    log(f'Selected node at square: {node.square}')
     return node
 
 def expand_node(node):
@@ -136,7 +138,7 @@ def expand_node(node):
         # print('Unable to expand terminal node')
         return node
 
-    # expansion policy: half the time pick a random sqaure, the other half pick an empty square with the most neighbors
+    # expansion policy: pick using the policy most often, allow some randomness
     rand = random.random()
     if rand > cfg.expand_random_chance:
         selected_square = node.board.get_random_empty_square()
@@ -157,16 +159,16 @@ def playout(node):
     """
     For the given node, simulate a playout by selecting random moves for each player
     Start with the opposite player since the previous selection was done by current player
-    Return 1 if the current player wins, else 0
+    Return 1 if the current player wins, 0.5 for a tie, 0 for a loss
     :param node:
     :return:
     """
     # create local copy of board to simulate playout
     board = Board(size=node.board.size, k=node.board.k, board=node.board.board)
     selected_square = node.square
-    board.make_move(node.square, node.player)
+    board.make_move(node.square, node.player)       # player1 makes its move
     empty_squares = board.get_empty_squares()
-    curr_player = get_other_player(node.player)     # player2 should make first move since player1 selected square prior to trial
+    curr_player = get_other_player(node.player)     # player2 moves next
     while empty_squares:                            # keep picking squares until board is filled
         selected_square = empty_squares[random.randrange(len(empty_squares))]
         board.make_move(selected_square, curr_player)
@@ -190,8 +192,6 @@ def playout(node):
         empty_squares = board.get_empty_squares()
         curr_player = get_other_player(curr_player)  # alternate between player 1 and 2 each loop
 
-    #raise Exception('not here')
-
     if board.is_win(selected_square, curr_player) and curr_player == node.player:      # return 1 if the target player won (use node.square since they may have not made the last move)
         log(f'Result of playout of {node.square}: WIN')
         if DEBUG:
@@ -201,7 +201,6 @@ def playout(node):
         log(f'Result of playout of {node.square}: TIE')
         if DEBUG:
             board.show()
-
         return 0.5
     log(f'Result of playout of {node.square}: LOSS')
     if DEBUG:
@@ -221,22 +220,6 @@ def back_propagate(node: Node, result: int):
     if not node.parent:
         return
     back_propagate(node.parent, result)
-
-
-# TODO : not used yet since no other policies exist yet
-def policy_random(board, player):
-    """
-    Random policy for mcts
-    Given a board, select a random sqaure for the given player
-    :param board:
-    :param player:
-    :return:
-    """
-    # get empty squares
-    empty_squares = board.get_empty_squares()
-    # pick random one
-    selected = empty_squares[random.randrange(len(empty_squares))]
-    return selected
 
 
 class TestMCTS(unittest.TestCase):

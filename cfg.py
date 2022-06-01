@@ -15,7 +15,7 @@ max_mcts_loops = 100               # number of times to run mcts at each eval
 
 # dial for which node is expanded; if random number between 0 and 1 is greater than this, random node
 # will be generated; else best node will be expanded using policy
-expand_random_chance = 0.9 # .3
+expand_random_chance = 0.9  # favor policy 90% of the time, 10% random
 DEBUG = False                       # set to True for verbose debugging messages
 show_each_move = False
 
