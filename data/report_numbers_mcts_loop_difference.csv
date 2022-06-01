@@ -1,0 +1,5 @@
+m,n,k,p1,p2,p1_pct,p2_pct,tie_pct,games,p1_avg_runtime,p2_avg_runtime,p1_max_loops,p2_max_loops
+4,4,3,mcts,mcts,48,48,4,50,0.0211,0.1031,10,50
+4,4,3,mcts,mcts,62,24,14,50,0.0684,0.0139,50,10
+4,4,3,mcts,mcts,60,24,16,50,0.0137,0.1240,10,100
+4,4,3,mcts,mcts,68,18,14,50,0.1285,0.0129,100,10

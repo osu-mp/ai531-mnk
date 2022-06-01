@@ -1,6 +1,6 @@
 from copy import deepcopy
-from typing import Tuple  # , Literal
-from termcolor import colored             # paceym: commented out to run on flip
+from typing import Tuple, Literal
+from termcolor import colored
 import numpy as np
 import random
 

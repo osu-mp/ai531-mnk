@@ -38,7 +38,7 @@ def time_selected_move(move_func, board, player):
 
     return best_move, runtime
 
-def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int):
+def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int, filename=None, player_mcts_loops=None):
     '''
     Simulate n games of p1_func vs. p2_func using m by n board (k consecutive to win)
     p*_func will be either the mcts algo or the alpha beta algo
@@ -73,6 +73,8 @@ def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int):
         player = 1
         board = Board((m, n), k)
         while len(board.get_empty_squares()) > 0:
+            if player_mcts_loops:       # allow for different mcts loop values per player
+                cfg.max_mcts_loops = player_mcts_loops[player]
             best_move, runtime = time_selected_move(move_funcs[player], board, player)
             runtimes[player] += runtime
             moves[player] += 1
@@ -94,12 +96,33 @@ def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int):
             wins[2] += 1
         else:
             wins[0] += 1
+            print(f'Tie! ({n_game} of {n_games})')
 
     p1_win_pct = int(wins[1] / n_games * 100)
     p2_win_pct = int(wins[2] / n_games * 100)
     tie_pct = int(wins[0] / n_games * 100)
     p1_avg_time = runtimes[1] / moves[1]
     p2_avg_time = runtimes[2] / moves[2]
+
+    if filename:
+        if p1_func == mcts_new:
+            p1 = 'mcts'
+        else:
+            p1 = 'ab'
+        if p2_func == mcts_new:
+            p2 = 'mcts'
+        else:
+            p2 = 'ab'
+        with open(filename, 'a') as csv:  # append to file as sim progresses
+            line = ','.join([str(val) for val in [m, n, k, p1, p2, p1_win_pct, p2_win_pct, tie_pct, n_games,
+                             f'{p1_avg_time:.4f}',f'{p2_avg_time:.4f}']])
+
+            if player_mcts_loops:
+                line += f',{str(player_mcts_loops[1])},{str(player_mcts_loops[2])}'
+
+            csv.write(line + '\n')
+            print(f'{p1} vs {p2} sim complete: {line}')
+
     return p1_win_pct, p2_win_pct, tie_pct, p1_avg_time, p2_avg_time
 
 def mcts_vs_mcts(n_games: int, m: int, n: int, k: int):
