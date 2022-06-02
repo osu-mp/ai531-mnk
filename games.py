@@ -22,6 +22,7 @@ Central location for simulating games with various combinations of players inclu
 -alphabeta bot vs. mcts bot (player1 = alphabeta)
 """
 
+
 def time_selected_move(move_func, board, player):
     """
     Get the best move from move_func (using board and player)
@@ -36,6 +37,7 @@ def time_selected_move(move_func, board, player):
     runtime = time.time() - start
 
     return best_move, runtime
+
 
 def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int, filename=None, player_mcts_loops=None):
     '''
@@ -55,15 +57,15 @@ def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int, filename=
     '''
 
     wins = {
-        0: 0,                           # player 1 win count
-        1: 0,                           # player 2 win count
-        2: 0                            # tie count
+        0: 0,  # player 1 win count
+        1: 0,  # player 2 win count
+        2: 0  # tie count
     }
 
-    runtimes = defaultdict(float)       # total runtime for each player (cumulative for all games)
-    moves = defaultdict(int)            # total number of moves for each player (cumulative for all games)
+    runtimes = defaultdict(float)  # total runtime for each player (cumulative for all games)
+    moves = defaultdict(int)  # total number of moves for each player (cumulative for all games)
 
-    move_funcs = {                      # dictionary used within loop to call correct player function (key = player)
+    move_funcs = {  # dictionary used within loop to call correct player function (key = player)
         1: p1_func,
         2: p2_func
     }
@@ -72,7 +74,7 @@ def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int, filename=
         player = 1
         board = Board((m, n), k)
         while len(board.get_empty_squares()) > 0:
-            if player_mcts_loops:       # allow for different mcts loop values per player
+            if player_mcts_loops:  # allow for different mcts loop values per player
                 cfg.max_mcts_loops = player_mcts_loops[player]
             best_move, runtime = time_selected_move(move_funcs[player], board, player)
             runtimes[player] += runtime
@@ -113,8 +115,7 @@ def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int, filename=
         else:
             p2 = 'ab'
         with open(filename, 'a') as csv:  # append to file as sim progresses
-            line = ','.join([str(val) for val in [m, n, k, p1, p2, p1_win_pct, p2_win_pct, tie_pct, n_games,
-                             f'{p1_avg_time:.4f}',f'{p2_avg_time:.4f}']])
+            line = ','.join([str(val) for val in [m, n, k, p1, p2, f'{p1_win_pct=}', f'{p2_win_pct=}', f'{tie_pct=}', f'{n_games=}', f'{p1_avg_time:.4f}', f'{p2_avg_time:.4f}']])
 
             if player_mcts_loops:
                 line += f',{str(player_mcts_loops[1])},{str(player_mcts_loops[2])}'
@@ -123,6 +124,7 @@ def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int, filename=
             print(f'{p1} vs {p2} sim complete: {line}')
 
     return p1_win_pct, p2_win_pct, tie_pct, p1_avg_time, p2_avg_time
+
 
 def mcts_vs_mcts(n_games: int, m: int, n: int, k: int):
     '''
@@ -135,14 +137,14 @@ def mcts_vs_mcts(n_games: int, m: int, n: int, k: int):
     player2_wins = 0
     ties = 0
 
-    runtimes = defaultdict(float)                   # total runtime for each player (cumulative for all games)
-    moves = defaultdict(int)                        # total number of moves for each player (cumulative for all games)
+    runtimes = defaultdict(float)  # total runtime for each player (cumulative for all games)
+    moves = defaultdict(int)  # total number of moves for each player (cumulative for all games)
 
     for n_game in tqdm(range(n_games)):
         player = 1
         board = Board((m, n), k)
         while len(board.get_empty_squares()) > 0:
-            best_move, runtime = time_selected_move(mcts_new, board, player)# mcts_new(board, player)
+            best_move, runtime = time_selected_move(mcts_new, board, player)  # mcts_new(board, player)
             runtimes[player] += runtime
             moves[player] += 1
             board.make_move(best_move, player)
@@ -188,7 +190,7 @@ def ab_vs_ab(n_games: int, m: int, n: int, k: int):
         player = 1
         board = Board((m, n), k)
         while len(board.get_empty_squares()) > 0:
-            best_move = bot_move(board,player,'ab')
+            best_move = bot_move(board, player, 'ab')
             board.make_move(best_move, player)
             if board.is_win(best_move, player):
                 # print only if there is a winner (do not care about ties as much)
@@ -210,6 +212,7 @@ def ab_vs_ab(n_games: int, m: int, n: int, k: int):
 
     return player1_wins, player2_wins, ties
 
+
 def mcts_vs_ab(n_games: int, m: int, n: int, k: int):
     '''
     Simulate n games of mcts vs. ab using m by n board (k consecutive to win)
@@ -225,9 +228,9 @@ def mcts_vs_ab(n_games: int, m: int, n: int, k: int):
         player = 1
         board = Board((m, n), k)
         while len(board.get_empty_squares()) > 0:
-            if player == 1:                             # player 1 uses mcts to pick move
+            if player == 1:  # player 1 uses mcts to pick move
                 best_move = mcts_new(board, player)
-            else:                                       # player 2 uses ab to pick move
+            else:  # player 2 uses ab to pick move
                 best_move = ab_bot(board, player)
             board.make_move(best_move, player)
             if board.is_win(best_move, player):
@@ -252,6 +255,7 @@ def mcts_vs_ab(n_games: int, m: int, n: int, k: int):
 
     return player1_wins, player2_wins, ties
 
+
 def ab_vs_mcts(n_games: int, m: int, n: int, k: int):
     '''
     Simulate n games of ab vs. mcts using m by n board (k consecutive to win)
@@ -267,9 +271,9 @@ def ab_vs_mcts(n_games: int, m: int, n: int, k: int):
         player = 1
         board = Board((m, n), k)
         while len(board.get_empty_squares()) > 0:
-            if player == 1:                             # player 1 uses ab to pick move
+            if player == 1:  # player 1 uses ab to pick move
                 best_move = ab_bot(board, player)
-            else:                                       # player 2 uses mcts to pick move
+            else:  # player 2 uses mcts to pick move
                 best_move = ab_bot(board, player)
             board.make_move(best_move, player)
             if board.is_win(best_move, player):
