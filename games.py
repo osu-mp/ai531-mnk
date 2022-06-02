@@ -70,8 +70,8 @@ def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int, filename=
         2: p2_func
     }
 
-    # for n_game in tqdm(range(n_games)):
-    for n_game in range(n_games):
+    for n_game in tqdm(range(n_games)):
+    # for n_game in range(n_games):
         player = 1
         board = Board((m, n), k)
         while len(board.get_empty_squares()) > 0:
