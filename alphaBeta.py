@@ -1,5 +1,5 @@
 from copy import deepcopy
-import random
+# import random
 import time
 from typing import Tuple, Union
 
@@ -8,6 +8,12 @@ from board import Board
 
 ab_time_filename = 'abTime.txt'
 INF = float('inf')
+# PRIORITY = False
+PRIORITY = True
+MAX_DEPTH = 6
+M = 3
+N = 3
+K = 3
 
 
 def reward_for_first_player(first_player, winner):
@@ -40,8 +46,8 @@ def min_value(board: Board, depth: int, alpha: int, beta: int,
               player: int, first_player: int, previous_move: int) -> Tuple[int, Union[None, int]]:
     global cnt_node
     cnt_node += 1
-    # if cnt_node % THRESHOLD_PRINT == 0:
-    #     print(f'{cnt_node=}')
+    if cnt_node % THRESHOLD_PRINT == 0:
+        print(f'{cnt_node=}')
 
     previous_player = get_other_player(player)
     terminal = is_terminal(board, previous_move, previous_player, depth)
@@ -55,7 +61,8 @@ def min_value(board: Board, depth: int, alpha: int, beta: int,
     # log(f'parent MAX, {terminal=}, {previous_move=}, {previous_player=}, {player=}')
     # board.show()
 
-    for move in board.get_empty_squares():
+    # for move in board.get_empty_squares():
+    for move in get_candidate_moves(board, PRIORITY):
         boardCopy = deepcopy(board)  # type: Board
         boardCopy.make_move(move, player)
 
@@ -72,12 +79,31 @@ def min_value(board: Board, depth: int, alpha: int, beta: int,
     return v, v_move
 
 
+def get_candidate_moves(board: Board, priority=False):
+    if priority:
+        queue = board.get_emtpy_cell_sorted()
+        # if len(queue) == 0:
+        #     res = [board.get_random_empty_square()]  # if queue is empty, pick a random square
+        # else:
+        queue.sort()
+        res = [e[1] for e in queue]
+        # res = []
+        # while not queue.empty():
+        #     best = queue.get()
+        #     selected_square = best[1]
+        #     res.append(selected_square)
+    else:
+        res = board.get_empty_squares()
+    assert isinstance(res, list)
+    return res
+
+
 def max_value(board: Board, depth, alpha, beta, player, first_player, previous_move=None) -> Tuple[
     int, Union[int, None]]:
     global cnt_node
     cnt_node += 1
-    # if cnt_node % THRESHOLD_PRINT == 0:
-    #     print(f'{cnt_node=}')
+    if cnt_node % THRESHOLD_PRINT == 0:
+        print(f'{cnt_node=}')
 
     previous_player = get_other_player(player)
     terminal = is_terminal(board, previous_move, previous_player, depth)
@@ -92,7 +118,8 @@ def max_value(board: Board, depth, alpha, beta, player, first_player, previous_m
 
     v = -INF
     v_move = None
-    for move in board.get_empty_squares():
+    candidates = get_candidate_moves(board, PRIORITY)
+    for move in candidates:
         boardCopy = deepcopy(board)  # type: Board
         boardCopy.make_move(move, player)
 
@@ -113,7 +140,10 @@ def max_value(board: Board, depth, alpha, beta, player, first_player, previous_m
 
 def ab_bot(board: Board, player: int):
     # TODO: change max depth
-    max_depth = board.size[0] * board.size[1]
+    if MAX_DEPTH is not None:
+        max_depth = MAX_DEPTH
+    else:
+        max_depth = board.size[0] * board.size[1]
     global cnt_node
     cnt_node = 0
     val, move = max_value(board, max_depth, -2, 2, player, player, None)
@@ -141,8 +171,10 @@ cnt_node = 0
 
 
 def test():
-    b = Board((4, 4), 3)
+    # b = Board((3, 3), 3)
+    b = Board((M, N), K)
     print(ab_bot(b, player=1))
+    print(f'{cnt_node=}')
     # depth = 4 * 4
     # val, move = max_value(b, depth, -2, 2, 1, 1, None)
     # move = bot_move(b, 1, 'ab')

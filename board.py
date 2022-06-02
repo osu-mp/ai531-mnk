@@ -244,6 +244,7 @@ class Board:
             # check the cells to the left, left up, up, up right,
             #                        right, down right, down, down left
             # if valid cell and empty, increment counter
+            counts[cell] = 0
             for i, j in [(-1, 0), (-1, 1), (0, 1), (1, 1),
                          (1, 0), (1, -1), (0, -1), (-1, -1)]:
                 if self.is_within_board_cell((x + i, y + j)) and self.board[x + i][y + j] != 0:
@@ -273,6 +274,30 @@ class Board:
                 # i.e. a cell with only 1 open neighbor is more valuable than one with 8 (no filled neighbors)
                 # the priority queue would then be -1, -8
                 queue.put((cells_counts[cell] * -1, cell))
+
+        return queue
+
+    def get_emtpy_cell_sorted(self):
+        """
+        Return a priority queue for the empty cells, ordered by cells with most filled cells
+        Each entry is (neighbors, cell id)
+        :return:
+        """
+        queue = []
+        cells_counts = self.get_emtpy_cell_neighbor_count()
+        # print(f'{cells_counts}')
+        if len(cells_counts) > 0:
+            for cell in cells_counts.keys():
+                # if a win, set the value as negative 9; no cell can have more than 8 neighbors, so this will
+                # ensure the cell is at the front of the priority queue (lowest numbers first)
+                if self.is_game_ending_move(cell):
+                    queue.append((-9, cell))
+                    continue
+
+                # multiply filled neighbor count by negative 1 to put most constrained empty cells first
+                # i.e. a cell with only 1 open neighbor is more valuable than one with 8 (no filled neighbors)
+                # the priority queue would then be -1, -8
+                queue.append((cells_counts[cell] * -1, cell))
 
         return queue
 
