@@ -46,8 +46,8 @@ def min_value(board: Board, depth: int, alpha: int, beta: int,
               player: int, first_player: int, previous_move: int) -> Tuple[int, Union[None, int]]:
     global cnt_node
     cnt_node += 1
-    if cnt_node % THRESHOLD_PRINT == 0:
-        print(f'{cnt_node=}')
+    # if cnt_node % THRESHOLD_PRINT == 0:
+    #     print(f'{cnt_node=}')
 
     previous_player = get_other_player(player)
     terminal = is_terminal(board, previous_move, previous_player, depth)

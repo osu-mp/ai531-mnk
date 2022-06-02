@@ -70,7 +70,8 @@ def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int, filename=
         2: p2_func
     }
 
-    for n_game in tqdm(range(n_games)):
+    # for n_game in tqdm(range(n_games)):
+    for n_game in range(n_games):
         player = 1
         board = Board((m, n), k)
         while len(board.get_empty_squares()) > 0:
@@ -82,7 +83,7 @@ def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int, filename=
             board.make_move(best_move, player)
             if board.is_win(best_move, player):
                 # print only if there is a winner (do not care about ties as much)
-                print(f'Player {player} wins! ({n_game} of {n_games})')
+                # print(f'Player {player} wins! ({n_game} of {n_games})')
                 if cfg.DEBUG:
                     board.show()
                 break
@@ -97,7 +98,7 @@ def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int, filename=
             wins[2] += 1
         else:
             wins[0] += 1
-            print(f'Tie! ({n_game} of {n_games})')
+            # print(f'Tie! ({n_game} of {n_games})')
 
     p1_win_pct = int(wins[1] / n_games * 100)
     p2_win_pct = int(wins[2] / n_games * 100)
@@ -115,13 +116,14 @@ def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int, filename=
         else:
             p2 = 'ab'
         with open(filename, 'a') as csv:  # append to file as sim progresses
-            line = ','.join([str(val) for val in [m, n, k, p1, p2, f'{p1_win_pct=}', f'{p2_win_pct=}', f'{tie_pct=}', f'{n_games=}', f'{p1_avg_time:.4f}', f'{p2_avg_time:.4f}']])
+            line = ','.join([str(val) for val in [m, n, k, p1, p2, p1_win_pct, p2_win_pct, tie_pct, n_games, f'{p1_avg_time:.4f}', f'{p2_avg_time:.4f}']])
 
             if player_mcts_loops:
                 line += f',{str(player_mcts_loops[1])},{str(player_mcts_loops[2])}'
 
             csv.write(line + '\n')
-            print(f'{p1} vs {p2} sim complete: {line}')
+            print(line)
+            # print(f'{p1} vs {p2} sim complete: {line}')
 
     return p1_win_pct, p2_win_pct, tie_pct, p1_avg_time, p2_avg_time
 

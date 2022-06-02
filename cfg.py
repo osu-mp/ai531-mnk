@@ -6,7 +6,7 @@
 # Matthew Pacey
 
 uct_const = 1.1 # math.sqrt(2)            # constant term in uct evaluation
-max_mcts_loops = 100               # number of times to run mcts at each eval
+max_mcts_loops = 500               # number of times to run mcts at each eval
 
 # dial for which node is selected; if random number between 0 and 1 is greater than this, random node
 # will be selected; else best node will be selected using uct policy
@@ -19,7 +19,7 @@ expand_random_chance = 0.9  # favor policy 90% of the time, 10% random
 DEBUG = False                       # set to True for verbose debugging messages
 show_each_move = False
 
-data_collection_loops = 10         # default number of loops for each data collection test
+data_collection_loops = 100         # default number of loops for each data collection test
 
 
 mcts_time_filname = 'mctsTime.txt'
@@ -32,6 +32,6 @@ def reset():
     global uct_const, max_mcts_loops, expand_random_chance
 
     uct_const = 1.1
-    max_mcts_loops = 100
+    max_mcts_loops = 500
     expand_random_chance = 0.9
 

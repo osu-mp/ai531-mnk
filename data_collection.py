@@ -338,39 +338,40 @@ class MNKDataCollection(unittest.TestCase):
         :return:
         '''
         print('Collecting report data')
-        iterations = 10   # cfg.data_collection_loops
+        iterations = cfg.data_collection_loops
 
         # start log new each time, only add headers
-        filename = 'data/report_numbers_matt.csv'
-        with open(filename, 'w') as csv:
-            csv.write(f'm,n,k,p1,p2,p1_pct,p2_pct,tie_pct,games,p1_avg_runtime,p2_avg_runtime\n')
+        filename = 'data/report_numbers.csv'
+        # with open(filename, 'w') as csv:
+        #     csv.write(f'm,n,k,p1,p2,p1_pct,p2_pct,tie_pct,games,p1_avg_runtime,p2_avg_runtime\n')
+
+        print(f'MCTS Loops={cfg.max_mcts_loops}')
 
         for m, n in [(3, 3), (3, 4), (4, 4), (5, 4), (5, 5), (6, 6), (7, 7)]:
-        # for m, n in [(4, 4)]:
-            for k in range(3, m + 1):  # test for board to require 3 to 6 cells in a row to win
+            for k in range(3, m):  # test for board to require 3 to m cells in a row to win
                 if k > m or k > n:  # skip cases where board cannot support winning condition
                     continue
 
-                print(f'Running {iterations} for each matchup with m={m}, k={k}')
+                # print(f'Running {iterations} for each matchup with m={m}, n={n}, k={k}')
                 # # mcts vs mcts
                 # print('mcts vs mcts')
-                # bot_vs_bot(mcts_new, mcts_new, iterations, m, m, k, filename)
-                #
-                # # mcts vs ab
-                print('mcts vs ab')
-                bot_vs_bot(mcts_new, ab_bot, iterations, m, m, k, filename)
-                #
+                # bot_vs_bot(mcts_new, mcts_new, iterations, m, n, k, filename)
+
+                # print('mcts vs ab')
+                bot_vs_bot(mcts_new, ab_bot, iterations, m, n, k, filename)
+
                 # # ab vs ab
                 # print('ab vs ab')
-                # bot_vs_bot(ab_bot, ab_bot, iterations, m, m, k, filename)
+                # bot_vs_bot(ab_bot, ab_bot, iterations, m, n, k, filename)
 
-                # ab vs mcts
-                print('ab vs mcts')
-                bot_vs_bot(ab_bot, mcts_new, iterations, m, m, k, filename)
+                # print('ab vs mcts')
+                bot_vs_bot(ab_bot, mcts_new, iterations, m, n, k, filename)
 
         # continue_run = input(f'Completed m={m}, k={k}, continue?')
         # if continue_run.lower() != 'y':
         #     break
+
+        print(f'DONE: report {filename}')
 
     def test_collect_report_data_mcts(self):
         '''
