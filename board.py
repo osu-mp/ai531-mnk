@@ -16,7 +16,8 @@ class Board:
         self.gameover = False
         self.winner = 0
         if board is not None:
-            self.board = deepcopy(board)
+            # self.board = deepcopy(board)
+            self.board = np.array(board)
         else:
             self.board = np.zeros(self.size, dtype=int)
         self.board_cell = np.arange(self.size[0] * self.size[1]).reshape(self.size)
@@ -38,13 +39,18 @@ class Board:
         return s
 
     def is_gameover(self, pos: int, val):  # paceym: commented out to run on flip Literal[0, 1, 2]):
-        self.is_win(pos, val)
+        is_win = self.is_win(pos, val)
+        if is_win:
+            assert self.gameover
+            return True
+
         if len(self.get_empty_squares()) == 0:
             self.gameover = True
         return self.gameover
 
     def xy_to_pos(self, x: int, y: int):
         return x * self.size[1] + y
+
     #
     # def get_empty_squares(self):
     #     """
@@ -147,19 +153,17 @@ class Board:
 
         player = ['.', 'X', 'O']  # converting -1, 1, 0 to O, X, .
         if val == 1 or val == 2:
-            five_pieces = player[val] * self.k
+            k_pieces = player[val] * self.k
         else:
-            five_pieces = '#' * self.k
-        # print(f'{five_pieces=}')
+            k_pieces = '#' * self.k
 
         for line in lines:
             y = ''
             for elem in line:
                 y += player[elem]
-                if five_pieces in y:
+                if k_pieces in y:
                     flag = True
                     break
-            # print(f'{c=}')
 
         if flag:
             self.gameover = True
@@ -240,6 +244,7 @@ class Board:
             # check the cells to the left, left up, up, up right,
             #                        right, down right, down, down left
             # if valid cell and empty, increment counter
+            counts[cell] = 0
             for i, j in [(-1, 0), (-1, 1), (0, 1), (1, 1),
                          (1, 0), (1, -1), (0, -1), (-1, -1)]:
                 if self.is_within_board_cell((x + i, y + j)) and self.board[x + i][y + j] != 0:
@@ -269,6 +274,30 @@ class Board:
                 # i.e. a cell with only 1 open neighbor is more valuable than one with 8 (no filled neighbors)
                 # the priority queue would then be -1, -8
                 queue.put((cells_counts[cell] * -1, cell))
+
+        return queue
+
+    def get_emtpy_cell_sorted(self):
+        """
+        Return a priority queue for the empty cells, ordered by cells with most filled cells
+        Each entry is (neighbors, cell id)
+        :return:
+        """
+        queue = []
+        cells_counts = self.get_emtpy_cell_neighbor_count()
+        # print(f'{cells_counts}')
+        if len(cells_counts) > 0:
+            for cell in cells_counts.keys():
+                # if a win, set the value as negative 9; no cell can have more than 8 neighbors, so this will
+                # ensure the cell is at the front of the priority queue (lowest numbers first)
+                if self.is_game_ending_move(cell):
+                    queue.append((-9, cell))
+                    continue
+
+                # multiply filled neighbor count by negative 1 to put most constrained empty cells first
+                # i.e. a cell with only 1 open neighbor is more valuable than one with 8 (no filled neighbors)
+                # the priority queue would then be -1, -8
+                queue.append((cells_counts[cell] * -1, cell))
 
         return queue
 

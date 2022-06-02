@@ -14,6 +14,7 @@ from mcts import mcts_new
 
 import cfg
 
+
 class MNKDataCollection(unittest.TestCase):
     '''
     Performance monitoring and parameter refinement for mnk bots
@@ -25,7 +26,6 @@ class MNKDataCollection(unittest.TestCase):
         :return:
         '''
         cfg.reset()
-
 
     def test_mcts_consts(self):
         '''
@@ -65,7 +65,6 @@ class MNKDataCollection(unittest.TestCase):
                 csv.write(f'{line}\n')
                 print(f'MCTS (default): p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%')
 
-
     def test_uct_const(self):
         '''
         Collect game data for varying constants in the uct algo
@@ -101,7 +100,7 @@ class MNKDataCollection(unittest.TestCase):
                     m,
                     n,
                     k]
-                ])
+                                 ])
                 csv.write(f'{line}\n')
 
                 print(f'MCTS (uct const = {uct_val}): p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%')
@@ -140,7 +139,7 @@ class MNKDataCollection(unittest.TestCase):
                     m,
                     n,
                     k]
-                ])
+                                 ])
                 csv.write(f'{line}\n')
 
                 print(f'MCTS (loop count = {loop_count}): p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%')
@@ -179,7 +178,7 @@ class MNKDataCollection(unittest.TestCase):
                     m,
                     n,
                     k]
-                ])
+                                 ])
                 csv.write(f'{line}\n')
 
                 print(f'\nrandom_pct = {random_pct}\n')
@@ -219,7 +218,7 @@ class MNKDataCollection(unittest.TestCase):
                     m,
                     n,
                     k]
-                ])
+                                 ])
                 csv.write(f'{line}\n')
 
                 print(f'\nrandom_pct = {random_pct}\n')
@@ -333,42 +332,45 @@ class MNKDataCollection(unittest.TestCase):
                 csv.write(f'{line}\n')
                 print(f'AB vs MCTS: p1 wins {p1_pct}% p2 wins {p2_pct}% ties {tie_pct}%')
 
-
     def test_collect_report_data(self):
         '''
         Collect data for various board sizes
         :return:
         '''
         print('Collecting report data')
-        iterations = 10# cfg.data_collection_loops
+        iterations = 10   # cfg.data_collection_loops
 
         # start log new each time, only add headers
         filename = 'data/report_numbers_matt.csv'
         with open(filename, 'w') as csv:
             csv.write(f'm,n,k,p1,p2,p1_pct,p2_pct,tie_pct,games,p1_avg_runtime,p2_avg_runtime\n')
 
-
-        for m, n in [(3, 3), (3, 4), (4, 4), (5, 4), (5, 5), (6, 6), (7, 7)].__reversed__():
-            for k in range(3, m+1):           # test for board to require 3 to 6 cells in a row to win
-                if k > m or k > n:                   # skip cases where board cannot support winning condition
+        for m, n in [(3, 3), (3, 4), (4, 4), (5, 4), (5, 5), (6, 6), (7, 7)]:
+        # for m, n in [(4, 4)]:
+            for k in range(3, m + 1):  # test for board to require 3 to 6 cells in a row to win
+                if k > m or k > n:  # skip cases where board cannot support winning condition
                     continue
 
                 print(f'Running {iterations} for each matchup with m={m}, k={k}')
-                # mcts vs mcts
-                bot_vs_bot(mcts_new, mcts_new, iterations, m, n, k, filename)
-
+                # # mcts vs mcts
+                # print('mcts vs mcts')
+                # bot_vs_bot(mcts_new, mcts_new, iterations, m, m, k, filename)
+                #
                 # # mcts vs ab
-                # bot_vs_bot(mcts_new, ab_bot, iterations, m, n, k, filename)
+                print('mcts vs ab')
+                bot_vs_bot(mcts_new, ab_bot, iterations, m, m, k, filename)
                 #
                 # # ab vs ab
-                # bot_vs_bot(ab_bot, ab_bot, iterations, m, n, k, filename)
+                # print('ab vs ab')
+                # bot_vs_bot(ab_bot, ab_bot, iterations, m, m, k, filename)
 
                 # ab vs mcts
-                # bot_vs_bot(ab_bot, mcts_new, iterations, m, n, k, filename)
+                print('ab vs mcts')
+                bot_vs_bot(ab_bot, mcts_new, iterations, m, m, k, filename)
 
-            # continue_run = input(f'Completed m={m}, k={k}, continue?')
-            # if continue_run.lower() != 'y':
-            #     break
+        # continue_run = input(f'Completed m={m}, k={k}, continue?')
+        # if continue_run.lower() != 'y':
+        #     break
 
     def test_collect_report_data_mcts(self):
         '''
@@ -383,11 +385,11 @@ class MNKDataCollection(unittest.TestCase):
 
         # start log new each time, only add headers
         filename = 'data/report_numbers_mcts_loop_difference2.csv'
-        # with open(filename, 'w') as csv:
-        #     csv.write(f'm,n,k,p1,p2,p1_pct,p2_pct,tie_pct,games,p1_avg_runtime,p2_avg_runtime,p1_max_loops,p2_max_loops\n')
+        with open(filename, 'w') as csv:
+            csv.write(f'm,n,k,p1,p2,p1_pct,p2_pct,tie_pct,games,p1_avg_runtime,p2_avg_runtime,p1_max_loops,p2_max_loops\n')
 
-        for m, n in [(9, 9), (8, 8), (3, 3), (3, 4), (4, 4), (5, 4), (5, 5), (6, 6), (7, 7)].__reversed__():
-            for k in range(3, m+1):           # test for board to require 3 to 6 cells in a row to win
+        for m, n in [(3, 3), (3, 4), (4, 4), (5, 4), (5, 5), (6, 6), (7, 7)].__reversed__():
+            for k in range(3, m):           # test for board to require 3 to 6 cells in a row to win
                 if k > m or k > n:                   # skip cases where board cannot support winning condition
                     continue
 
@@ -398,16 +400,14 @@ class MNKDataCollection(unittest.TestCase):
                     # {1: 100, 2: 10},
                     # {1: 100, 2: 1000},
                     # {1: 1000, 2: 100},
-                    {1: 25, 2: 1000},
-                    {1: 1000, 2: 25},
+                    {1: 5, 2: 500},
+                    {1: 500, 2: 5},
                 ]:
-                    if m == 7 and n == 7 and k in [3, 4]:
-                        continue
-
+                    
                     print(f'Running {iterations} for each {m}x{n} (k={k}) with p1 loops={max_loops[1]}, p2 loops={max_loops[2]}')
                     bot_vs_bot(mcts_new, mcts_new, iterations, m, n, k, filename, max_loops)
 
+
+            
 if __name__ == '__main__':
     unittest.main()
-
-

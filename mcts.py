@@ -16,7 +16,7 @@ from util import get_other_player, log
 
 import cfg
 
-DEBUG = cfg.DEBUG                       # set to True for verbose debugging messages
+DEBUG = cfg.DEBUG  # set to True for verbose debugging messages
 
 
 class Node:
@@ -24,8 +24,9 @@ class Node:
     Node for tree search. Maintain parent, children, baard state and move to get to this node
     Maintain the number of wins and games for each node (propagates up tree after simulation)
     """
+
     def __init__(self, board, player, parent=None, square=None):
-        self.board = deepcopy(board)            # ensure any edits made to the board do not bubble up
+        self.board = deepcopy(board)  # ensure any edits made to the board do not bubble up
         self.player = player
         self.parent = parent
         self.square = square
@@ -40,16 +41,16 @@ class Node:
         uct = wins / games + C * sqrt(log(Parent games)/ (this node games))
         :return:
         """
-        if self.games == 0:         # avoid divide by zero
+        if self.games == 0:  # avoid divide by zero
             return 0
 
-        if not self.parent:         # return raw win percentage for root node
+        if not self.parent:  # return raw win percentage for root node
             return self.wins / self.games
 
         n = self.games              # number of games simulated at this level
         value = self.wins / n                                       # exploitation
         log_parent = math.log(self.parent.games)
-        value += cfg.uct_const * math.sqrt(log_parent / n)          # exploration
+        value += cfg.uct_const * math.sqrt(log_parent / n)  # exploration
 
         return value
 
@@ -98,7 +99,6 @@ def select_node(node: Node):
     :param node:
     :return:
     """
-
     while len(node.children) > 0:
         best_uct = -1
         best_nodes = []  # list of all nodes with max uct
@@ -110,22 +110,23 @@ def select_node(node: Node):
                 return child
             uct = child.get_uct()
             log(f'UCT of {child.square} = {uct}')
-            if uct > best_uct:          # new max uct found, reset list
+            if uct > best_uct:  # new max uct found, reset list
                 best_uct = uct
                 # node = child
                 best_nodes = [child]
             elif uct == best_uct:
                 best_nodes.append(child)
 
-        if len(best_nodes) == 1:          # if only one best node, return that
+        if len(best_nodes) == 1:  # if only one best node, return that
             node = best_nodes[0]
             # print(f'Single node with best uct: {node.square}')
-        else:                               # else if multiple nodes have the same uct, pick a random one
+        else:  # else if multiple nodes have the same uct, pick a random one
             node = best_nodes[random.randrange(len(best_nodes))]
             # print(f'{len(best_nodes)} best nodes, random picked: {node.square}')
 
     log(f'Selected node at square: {node.square}')
     return node
+
 
 def expand_node(node):
     """
@@ -134,7 +135,7 @@ def expand_node(node):
     :param node:
     :return:
     """
-    if not node.board.get_empty_squares(): # node.square and node.board.is_gameover(node.square, node.player):
+    if not node.board.get_empty_squares():  # node.square and node.board.is_gameover(node.square, node.player):
         # print('Unable to expand terminal node')
         return node
 
@@ -145,7 +146,7 @@ def expand_node(node):
     else:
         queue = node.board.get_emtpy_cell_priority_queue(node.player)
         if queue.empty():
-            selected_square = node.board.get_random_empty_square()      # if queue is empty, pick a random square
+            selected_square = node.board.get_random_empty_square()  # if queue is empty, pick a random square
         else:
             best = queue.get()
             selected_square = best[1]
@@ -154,6 +155,7 @@ def expand_node(node):
     leaf.board.make_move(selected_square, leaf.player)
 
     return leaf
+
 
 def playout(node):
     """
@@ -216,7 +218,7 @@ def back_propagate(node: Node, result: int):
     :return:
     """
     node.games += 1
-    node.wins += result     # 0 = loss, 0.5 = tie, 1 = win
+    node.wins += result  # 0 = loss, 0.5 = tie, 1 = win
     if not node.parent:
         return
     back_propagate(node.parent, result)
@@ -231,7 +233,7 @@ class TestMCTS(unittest.TestCase):
         Work in progress test for mcts
         :return:
         """
-        from games import mcts_vs_mcts, bot_vs_bot          # put import inside inner scope to avoid circular references
+        from games import mcts_vs_mcts, bot_vs_bot  # put import inside inner scope to avoid circular references
 
         games = 5
 
