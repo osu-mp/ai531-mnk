@@ -338,10 +338,10 @@ class MNKDataCollection(unittest.TestCase):
         :return:
         '''
         print('Collecting report data')
-        iterations = 100  # cfg.data_collection_loops
+        iterations = 10   # cfg.data_collection_loops
 
         # start log new each time, only add headers
-        filename = 'data/report_numbers_mcts_only.csv'
+        filename = 'data/report_numbers_matt.csv'
         with open(filename, 'w') as csv:
             csv.write(f'm,n,k,p1,p2,p1_pct,p2_pct,tie_pct,games,p1_avg_runtime,p2_avg_runtime\n')
 
@@ -378,28 +378,36 @@ class MNKDataCollection(unittest.TestCase):
         :return:
         '''
         print('Collecting report data')
-        iterations = 50  # cfg.data_collection_loops
-        m = 4
-        n = 4
-        k = 3
+        iterations = cfg.data_collection_loops
+        # m = 4
+        # n = 4
+        # k = 3
 
         # start log new each time, only add headers
-        filename = 'data/report_numbers_mcts_loop_difference.csv'
+        filename = 'data/report_numbers_mcts_loop_difference2.csv'
         with open(filename, 'w') as csv:
-            csv.write(
-                f'm,n,k,p1,p2,p1_pct,p2_pct,tie_pct,games,p1_avg_runtime,p2_avg_runtime,p1_max_loops,p2_max_loops\n')
+            csv.write(f'm,n,k,p1,p2,p1_pct,p2_pct,tie_pct,games,p1_avg_runtime,p2_avg_runtime,p1_max_loops,p2_max_loops\n')
 
-        for max_loops in [
-            {1: 10, 2: 50},
-            {1: 50, 2: 10},
-            {1: 10, 2: 100},
-            {1: 100, 2: 10},
-            {1: 100, 2: 1000},
-            {1: 1000, 2: 100},
-        ]:
-            print(f'Running {iterations} for each matchup with p1 loops={max_loops[1]}, p2 loops={max_loops[2]}')
-            bot_vs_bot(mcts_new, mcts_new, iterations, m, n, k, filename, max_loops)
+        for m, n in [(3, 3), (3, 4), (4, 4), (5, 4), (5, 5), (6, 6), (7, 7)].__reversed__():
+            for k in range(3, m):           # test for board to require 3 to 6 cells in a row to win
+                if k > m or k > n:                   # skip cases where board cannot support winning condition
+                    continue
+
+                for max_loops in [
+                    # {1: 10, 2: 50},
+                    # {1: 50, 2: 10},
+                    # {1: 10, 2: 100},
+                    # {1: 100, 2: 10},
+                    # {1: 100, 2: 1000},
+                    # {1: 1000, 2: 100},
+                    {1: 5, 2: 500},
+                    {1: 500, 2: 5},
+                ]:
+                    
+                    print(f'Running {iterations} for each {m}x{n} (k={k}) with p1 loops={max_loops[1]}, p2 loops={max_loops[2]}')
+                    bot_vs_bot(mcts_new, mcts_new, iterations, m, n, k, filename, max_loops)
 
 
+            
 if __name__ == '__main__':
     unittest.main()
