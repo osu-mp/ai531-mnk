@@ -39,8 +39,9 @@ class Board:
         return s
 
     def is_gameover(self, pos: int, val):  # paceym: commented out to run on flip Literal[0, 1, 2]):
-        self.is_win(pos, val)
-        if self.gameover:
+        is_win = self.is_win(pos, val)
+        if is_win:
+            assert self.gameover
             return True
 
         if len(self.get_empty_squares()) == 0:

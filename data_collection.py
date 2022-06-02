@@ -345,8 +345,8 @@ class MNKDataCollection(unittest.TestCase):
         with open(filename, 'w') as csv:
             csv.write(f'm,n,k,p1,p2,p1_pct,p2_pct,tie_pct,games,p1_avg_runtime,p2_avg_runtime\n')
 
-        # for m, n in [(3, 3), (3, 4), (4, 4), (5, 4), (5, 5), (6, 6), (7, 7)]:
-        for m, n in [(4, 4)]:
+        for m, n in [(3, 3), (3, 4), (4, 4), (5, 4), (5, 5), (6, 6), (7, 7)]:
+        # for m, n in [(4, 4)]:
             for k in range(3, m + 1):  # test for board to require 3 to 6 cells in a row to win
                 if k > m or k > n:  # skip cases where board cannot support winning condition
                     continue
@@ -357,8 +357,8 @@ class MNKDataCollection(unittest.TestCase):
                 # bot_vs_bot(mcts_new, mcts_new, iterations, m, m, k, filename)
                 #
                 # # mcts vs ab
-                # print('mcts vs ab')
-                # bot_vs_bot(mcts_new, ab_bot, iterations, m, m, k, filename)
+                print('mcts vs ab')
+                bot_vs_bot(mcts_new, ab_bot, iterations, m, m, k, filename)
                 #
                 # # ab vs ab
                 # print('ab vs ab')

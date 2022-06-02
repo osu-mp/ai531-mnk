@@ -115,8 +115,7 @@ def bot_vs_bot(p1_func, p2_func, n_games: int, m: int, n: int, k: int, filename=
         else:
             p2 = 'ab'
         with open(filename, 'a') as csv:  # append to file as sim progresses
-            line = ','.join([str(val) for val in [m, n, k, p1, p2, p1_win_pct, p2_win_pct, tie_pct, n_games,
-                                                  f'{p1_avg_time:.4f}', f'{p2_avg_time:.4f}']])
+            line = ','.join([str(val) for val in [m, n, k, p1, p2, f'{p1_win_pct=}', f'{p2_win_pct=}', f'{tie_pct=}', f'{n_games=}', f'{p1_avg_time:.4f}', f'{p2_avg_time:.4f}']])
 
             if player_mcts_loops:
                 line += f',{str(player_mcts_loops[1])},{str(player_mcts_loops[2])}'
