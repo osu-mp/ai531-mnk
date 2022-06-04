@@ -1,2 +1,0 @@
-player1_wins,player2_wins,ties,player1_pct,p2_pct,tie_pct,mcts_loops,uct_const,m,n,k
-34,16,100,22,10,66,500,1.1,3,3,3
